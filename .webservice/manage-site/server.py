@@ -483,13 +483,13 @@ async def upload_favicon(file: UploadFile = File(...)):
 
     # Update config.json with favicon path
     cfg = _load_config()
-    cfg["site"]["favicon"] = f"/{favicon_name}"
+    cfg["site"]["favicon"] = f"./{favicon_name}"
     tmp = str(CONFIG_PATH) + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
     os.replace(tmp, str(CONFIG_PATH))
 
-    return {"ok": True, "message": f"Favicon saved as {favicon_name}. Rebuild the site to apply.", "favicon": f"/{favicon_name}"}
+    return {"ok": True, "message": f"Favicon saved as {favicon_name}. Rebuild the site to apply.", "favicon": f"./{favicon_name}"}
 
 
 # ── API: Build ────────────────────────────────────────────────────

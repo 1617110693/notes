@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const configPath = join(__dirname, '..', 'config.json')
 let siteTitle = '📓 My Notes'
 let siteBase = '/notes/'
-let faviconHref = '/favicon.ico'
+let faviconHref = './favicon.ico'
 let repoUrl = 'https://github.com/1617110693/notes'
 try {
   if (existsSync(configPath)) {
@@ -37,7 +37,7 @@ export default defineConfig({
       transformIndexHtml(html) {
         return html
           .replace(/<title>.*<\/title>/, `<title>${siteTitle}</title>`)
-          .replace(/<link rel="icon"[^>]*>/, `<link rel="icon" href="${faviconHref}">`)
+          .replace(/<link rel="icon"[^>]*>/, `<link rel="icon" href="${faviconHref.replace(/^\//, './')}">`)
       },
     },
   ],
