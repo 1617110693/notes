@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useNotesStore } from '@/stores/notes'
-import { extractHeadings, estimateReadingTime } from '@/utils/markdown'
+import { extractHeadings, estimateReadingTime, renderHeadingText } from '@/utils/markdown'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import TableOfContents from '@/components/TableOfContents.vue'
 
@@ -41,6 +41,14 @@ const tocCollapsed = ref(false)
 
 function toggleToc() {
   tocCollapsed.value = !tocCollapsed.value
+}
+
+function scrollToHeadingMobile(id) {
+  store.closeMobileToc()
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 }
 
 const prevNote = computed(() => {
@@ -139,7 +147,7 @@ watch(slug, loadContent)
               @toggle="toggleToc"
             />
           </aside>
-          <!-- Floating expand button when TOC is collapsed -->
+          <!-- Floating expand button when TOC is collapsed (desktop) -->
           <button
             v-if="tocCollapsed && headings.length > 0"
             class="toc-expand-float"
@@ -151,6 +159,36 @@ watch(slug, loadContent)
           </button>
         </div>
       </article>
+
+      <!-- Mobile TOC overlay panel -->
+      <Transition name="toc-slide-up">
+        <div
+          v-if="store.mobileTocOpen"
+          class="mobile-toc-overlay"
+          @click.self="store.closeMobileToc"
+        >
+          <div class="mobile-toc-panel">
+            <div class="mobile-toc-topbar">
+              <span class="mobile-toc-topbar-title">On this page</span>
+              <button
+                class="mobile-toc-close"
+                @click="store.closeMobileToc"
+                aria-label="Close table of contents"
+              >×</button>
+            </div>
+            <nav class="mobile-toc-list">
+              <a
+                v-for="h in headings"
+                :key="h.id"
+                :href="`#${h.id}`"
+                :class="[`mobile-toc-lvl-${h.level}`]"
+                @click.prevent="scrollToHeadingMobile(h.id)"
+                v-html="renderHeadingText(h.text)"
+              ></a>
+            </nav>
+          </div>
+        </div>
+      </Transition>
 
       <!-- Prev/Next navigation — full-width band -->
       <nav class="article-nav-section">
@@ -487,6 +525,131 @@ watch(slug, loadContent)
 
   .article-nav-section {
     padding: 1.5rem 1rem;
+  }
+
+  /* Hide desktop expand button on mobile */
+  .toc-expand-float {
+    display: none !important;
+  }
+
+  /* Mobile TOC overlay */
+  .mobile-toc-overlay {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.4);
+    align-items: flex-end;
+    justify-content: center;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+
+  .mobile-toc-panel {
+    width: 100%;
+    max-height: 65vh;
+    background: var(--color-card-bg);
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-toc-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .mobile-toc-topbar-title {
+    font-size: 0.85rem;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
+
+  .mobile-toc-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .mobile-toc-close:active {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .mobile-toc-list {
+    overflow-y: auto;
+    padding: 0.5rem 0;
+    flex: 1;
+  }
+
+  .mobile-toc-list a {
+    display: block;
+    padding: 0.7rem 1.25rem;
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border-left: 3px solid transparent;
+    transition: color 0.12s, background 0.12s, border-color 0.12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-toc-list a:active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+  }
+
+  .mobile-toc-lvl-2 {
+    padding-left: 1.25rem;
+  }
+
+  .mobile-toc-lvl-3 {
+    padding-left: 2rem;
+    font-size: 0.84rem;
+  }
+
+  .mobile-toc-lvl-4 {
+    padding-left: 2.75rem;
+    font-size: 0.82rem;
+  }
+
+  /* Slide-up transition */
+  .toc-slide-up-enter-active,
+  .toc-slide-up-leave-active {
+    transition: opacity 0.25s ease;
+  }
+
+  .toc-slide-up-enter-active .mobile-toc-panel,
+  .toc-slide-up-leave-active .mobile-toc-panel {
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .toc-slide-up-enter-from,
+  .toc-slide-up-leave-to {
+    opacity: 0;
+  }
+
+  .toc-slide-up-enter-from .mobile-toc-panel,
+  .toc-slide-up-leave-to .mobile-toc-panel {
+    transform: translateY(100%);
   }
 }
 </style>

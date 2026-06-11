@@ -119,7 +119,7 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
 
 .hero {
   position: relative;
-  padding: 5rem 1.5rem 3.5rem;
+  padding: 8rem 1.5rem 4.5rem;
   text-align: center;
   overflow: hidden;
   background: linear-gradient(180deg, var(--color-primary-bg) 0%, var(--color-bg) 100%);
@@ -188,6 +188,7 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
 }
 
 .title-line {
+  display: block;
   background: linear-gradient(135deg, var(--color-text) 0%, var(--color-text-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -409,7 +410,11 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
 
 @media (max-width: 768px) {
   .hero {
-    padding: 3rem 1rem 2.5rem;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1.25rem 5rem;
   }
 
   .hero-title {
@@ -420,12 +425,23 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
     font-size: 1rem;
   }
 
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary {
+    justify-content: center;
+  }
+
   .notes-grid {
     grid-template-columns: 1fr;
   }
 
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
   }
 
   .categories-section {
@@ -439,7 +455,7 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
 
 @media (max-width: 480px) {
   .hero {
-    padding: 2rem 1rem 1.5rem;
+    padding: 1.5rem 1rem 3.5rem;
   }
 
   .hero-title {
@@ -447,31 +463,35 @@ const featuredNotes = computed(() => store.allNotes.slice(0, 6))
   }
 
   .hero-stats {
-    gap: 1rem;
+    gap: 0.85rem;
   }
 
   .categories-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
-
-  .category-card {
-    padding: 0.85rem;
+    grid-template-columns: 1fr;
     gap: 0.6rem;
   }
 
+  .category-card {
+    padding: 1rem 1.1rem;
+    gap: 0.75rem;
+  }
+
   .category-icon-wrap {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 
   .category-name {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
   }
 
   .section-container {
     padding: 0 1rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
   }
 }
 </style>

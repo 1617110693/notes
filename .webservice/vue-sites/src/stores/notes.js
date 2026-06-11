@@ -13,6 +13,7 @@ export const useNotesStore = defineStore('notes', () => {
   const searchQuery = ref('')
   const activeCategory = ref(null)
   const theme = ref(localStorage.getItem('theme') || 'light')
+  const mobileTocOpen = ref(false)
 
   // Getters
   const allNotes = computed(() => metadata.notes)
@@ -96,11 +97,20 @@ export const useNotesStore = defineStore('notes', () => {
     activeCategory.value = category === activeCategory.value ? null : category
   }
 
+  function openMobileToc() {
+    mobileTocOpen.value = true
+  }
+
+  function closeMobileToc() {
+    mobileTocOpen.value = false
+  }
+
   return {
     // State
     searchQuery,
     activeCategory,
     theme,
+    mobileTocOpen,
     // Getters
     allNotes,
     categories,
@@ -113,5 +123,7 @@ export const useNotesStore = defineStore('notes', () => {
     initTheme,
     setSearchQuery,
     setActiveCategory,
+    openMobileToc,
+    closeMobileToc,
   }
 })

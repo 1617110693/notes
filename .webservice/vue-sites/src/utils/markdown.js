@@ -83,7 +83,8 @@ export function renderMarkdown(content) {
  */
 export function extractHeadings(content) {
   const headings = []
-  const lines = content.split('\n')
+  // Normalize line endings — split on \n and strip trailing \r (Windows CRLF)
+  const lines = content.replace(/\r\n?/g, '\n').split('\n')
   let inCodeBlock = false
   for (const line of lines) {
     // Toggle code block on fenced ``` (but not indented code)
@@ -116,6 +117,42 @@ export function extractHeadings(content) {
  * @param {string} content Raw markdown content
  * @returns {number} Estimated reading time in minutes
  */
+/**
+ * Render inline LaTeX in heading text for TOC display.
+ * Escapes HTML, then converts $...$ and \(...\) to KaTeX HTML.
+ * @param {string} text Raw heading text
+ * @returns {string} HTML string safe for v-html
+ */
+export function renderHeadingText(text) {
+  if (!text) return ''
+
+  // Escape HTML entities first
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
+  // Render $...$ inline LaTeX
+  const rendered = escaped
+    .replace(/\$([^$]+)\$/g, (_, formula) => {
+      try {
+        return katex.renderToString(formula, { throwOnError: false, displayMode: false })
+      } catch {
+        return `<span class="katex-error">${formula}</span>`
+      }
+    })
+    .replace(/\\\((.+?)\\\)/g, (_, formula) => {
+      try {
+        return katex.renderToString(formula, { throwOnError: false, displayMode: false })
+      } catch {
+        return `<span class="katex-error">${formula}</span>`
+      }
+    })
+
+  return rendered
+}
+
 export function estimateReadingTime(content) {
   // Count Chinese characters (each ~1 word) and English words
   const chineseChars = (content.match(/[一-鿿]/g) || []).length

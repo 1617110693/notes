@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useNotesStore } from '@/stores/notes'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import SearchBar from './SearchBar.vue'
@@ -15,6 +15,17 @@ const isNotes = computed(() => route.path.startsWith('/notes'))
 const mobileMenuOpen = ref(false)
 const notesDropdownOpen = ref(false)
 const dropdownRef = ref(null)
+
+// Hide header on homepage until user scrolls down
+const headerHidden = ref(false)
+const SCROLL_THRESHOLD = 40
+
+function onScroll() {
+  if (isHome.value) {
+    headerHidden.value = window.scrollY < SCROLL_THRESHOLD
+  }
+}
+
 
 // Notes grouped by category for the dropdown
 const notesByCategory = computed(() => {
@@ -50,12 +61,48 @@ function onDocClick(e) {
   }
 }
 
-onMounted(() => document.addEventListener('click', onDocClick))
-onUnmounted(() => document.removeEventListener('click', onDocClick))
+let removeScrollListener = null
+
+function setupHomeScroll() {
+  if (removeScrollListener) return // already set up
+  window.addEventListener('scroll', onScroll, { passive: true })
+  removeScrollListener = () => window.removeEventListener('scroll', onScroll)
+}
+
+function teardownHomeScroll() {
+  if (removeScrollListener) {
+    removeScrollListener()
+    removeScrollListener = null
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', onDocClick)
+  if (isHome.value) {
+    headerHidden.value = window.scrollY < SCROLL_THRESHOLD
+    setupHomeScroll()
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', onDocClick)
+  teardownHomeScroll()
+})
+
+// Only listen to scroll on homepage — avoids unnecessary handlers on note pages
+watch(isHome, (home) => {
+  if (home) {
+    headerHidden.value = window.scrollY < SCROLL_THRESHOLD
+    setupHomeScroll()
+  } else {
+    headerHidden.value = false
+    teardownHomeScroll()
+  }
+})
 </script>
 
 <template>
-  <header class="app-header">
+  <header class="app-header" :class="{ 'header-hidden': headerHidden, 'header-fixed': isHome }">
     <div class="header-inner">
       <!-- Logo -->
       <RouterLink to="/" class="logo" @click="store.setSearchQuery(''); closeMenu()">
@@ -113,6 +160,15 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
           :title="store.theme === 'light' ? 'Dark mode' : 'Light mode'"
         >
           {{ store.theme === 'light' ? '🌙' : '☀️' }}
+        </button>
+        <!-- Mobile TOC button (only on note-detail pages) -->
+        <button
+          v-if="route.name === 'note-detail'"
+          class="mobile-toc-btn"
+          @click="store.openMobileToc()"
+          aria-label="Table of contents"
+        >
+          ☰
         </button>
         <!-- Hamburger -->
         <button
@@ -173,6 +229,22 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Only animate transform when header-fixed (homepage) — avoids
+   interfering with position:sticky on note pages */
+.app-header.header-fixed {
+  transition: background-color 0.3s, border-color 0.3s, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.app-header.header-fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+
+.app-header.header-hidden {
+  transform: translateY(-100%);
 }
 
 .header-inner {
@@ -417,6 +489,11 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   transform: scale(1.05);
 }
 
+/* Mobile TOC button (in header bar) */
+.mobile-toc-btn {
+  display: none;
+}
+
 /* Hamburger */
 .hamburger {
   display: none;
@@ -551,6 +628,28 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 
   .hamburger {
     display: flex;
+  }
+
+  .mobile-toc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+
+  .mobile-toc-btn:active {
+    color: var(--color-primary);
+    background: var(--color-primary-bg);
+    border-color: var(--color-primary);
   }
 
   .mobile-nav {

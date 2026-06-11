@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { renderHeadingText } from '@/utils/markdown.js'
 
 const props = defineProps({
   headings: {
@@ -47,7 +48,15 @@ async function syncTocScroll() {
 
 let observer = null
 
-onMounted(() => {
+function isTocVisible() {
+  // Never create IntersectionObserver on mobile — sidebar is display:none,
+  // and observing 100+ headings on mobile Safari can break position:sticky
+  if (window.innerWidth < 768) return false
+  return tocNav.value && tocNav.value.offsetParent !== null
+}
+
+function startObserving() {
+  if (observer) return
   observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -66,11 +75,37 @@ onMounted(() => {
     const el = document.getElementById(h.id)
     if (el) observer.observe(el)
   }
+}
+
+function stopObserving() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+onMounted(() => {
+  // Only observe when TOC is actually visible (not mobile, not collapsed)
+  if (isTocVisible() && !props.collapsed) {
+    startObserving()
+  }
 })
 
 onUnmounted(() => {
-  if (observer) observer.disconnect()
+  stopObserving()
 })
+
+// Watch collapsed state to connect/disconnect observer
+watch(
+  () => props.collapsed,
+  (collapsed) => {
+    if (collapsed) {
+      stopObserving()
+    } else if (isTocVisible()) {
+      startObserving()
+    }
+  },
+)
 
 watch(
   () => props.headings,
@@ -100,9 +135,7 @@ watch(
         :key="h.id"
         :class="[getHeadingClass(h.level), { active: activeId === h.id }]"
       >
-        <a :href="`#${h.id}`" @click.prevent="scrollToHeading(h.id)">
-          {{ h.text }}
-        </a>
+        <a :href="`#${h.id}`" @click.prevent="scrollToHeading(h.id)" v-html="renderHeadingText(h.text)"></a>
       </li>
     </ul>
   </nav>
