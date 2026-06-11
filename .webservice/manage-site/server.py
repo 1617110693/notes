@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, UploadFile, File
 from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -377,17 +377,119 @@ def read_raw_file(path: str = Query(...)):
 
 
 # ── API: Site Config ──────────────────────────────────────────────
+CONFIG_PATH = MANAGE_DIR.parent / "config.json"
+
+def _load_config():
+    """Load config.json, returning defaults if missing/invalid."""
+    defaults = {
+        "server": {"host": "127.0.0.1", "port": 8765},
+        "site": {"title": "My Notes", "base": "/notes/", "repo_url": ""},
+    }
+    if CONFIG_PATH.exists():
+        try:
+            cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            # Merge with defaults so missing keys don't break things
+            for section in defaults:
+                if section in cfg:
+                    defaults[section].update(cfg[section])
+            return defaults
+        except Exception:
+            pass
+    return defaults
+
+
 @app.get("/api/site-config")
 def get_site_config():
-    """Return some site-level config for display."""
+    """Return site-level config for display (read from config.json)."""
+    cfg = _load_config()
     return {
-        "title": "📓 My Notes — Personal Knowledge Base",
-        "base_path": "/notes/",
-        "repo_url": "https://github.com/1617110693/notes",
+        "title": cfg["site"].get("title", "My Notes"),
+        "base_path": cfg["site"].get("base", "/notes/"),
+        "repo_url": cfg["site"].get("repo_url", ""),
         "build_output_dir": str(DOCS_DIR),
         "vue_project_dir": str(VUE_DIR),
         "notes_dir": str(NOTES_ROOT),
     }
+
+
+@app.get("/api/config")
+def get_config():
+    """Return the full config.json contents."""
+    return _load_config()
+
+
+@app.post("/api/config")
+def save_config(data: dict):
+    """Save the full config.json."""
+    # Validate structure
+    if "server" not in data:
+        data["server"] = {}
+    if "site" not in data:
+        data["site"] = {}
+    # Basic validation
+    host = data["server"].get("host", "127.0.0.1")
+    port = int(data["server"].get("port", 8765))
+    if not (1 <= port <= 65535):
+        raise HTTPException(400, "Port must be between 1 and 65535")
+    data["server"]["host"] = host
+    data["server"]["port"] = port
+    data["site"]["title"] = data["site"].get("title", "My Notes")
+    data["site"]["base"] = data["site"].get("base", "/notes/")
+    data["site"]["repo_url"] = data["site"].get("repo_url", "")
+    # Preserve favicon if present in incoming data, otherwise keep existing
+    if "favicon" in data["site"]:
+        data["site"]["favicon"] = data["site"]["favicon"]
+    else:
+        old_cfg = _load_config()
+        if "favicon" in old_cfg.get("site", {}):
+            data["site"]["favicon"] = old_cfg["site"]["favicon"]
+    # Write atomically
+    tmp = str(CONFIG_PATH) + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, str(CONFIG_PATH))
+    return {"ok": True, "message": "Config saved. Restart the server for host/port changes to take effect."}
+
+
+@app.post("/api/config/favicon")
+async def upload_favicon(file: UploadFile = File(...)):
+    """Upload a favicon image. Accepts PNG, JPG, ICO, SVG."""
+    # Validate file type
+    ext = Path(file.filename).suffix.lower() if file.filename else ""
+    allowed = {".png", ".jpg", ".jpeg", ".ico", ".svg", ".webp"}
+    if ext not in allowed:
+        raise HTTPException(400, f"Unsupported format: {ext}. Allowed: {', '.join(sorted(allowed))}")
+
+    # Limit size (1 MB)
+    contents = await file.read()
+    if len(contents) > 1_000_000:
+        raise HTTPException(400, "File too large. Max 1 MB.")
+
+    # Determine the favicon filename. ICO is the traditional favicon; browsers
+    # also accept PNG. We always save as favicon.ico for maximum compatibility
+    # unless it's an SVG, which we save as favicon.svg.
+    if ext == ".svg":
+        favicon_name = "favicon.svg"
+    elif ext == ".ico":
+        favicon_name = "favicon.ico"
+    else:
+        # Convert PNG/JPG/WebP → save as favicon.ico name (browsers probe content-type anyway)
+        favicon_name = "favicon.ico"
+
+    favicon_dir = VUE_DIR / "public"
+    favicon_dir.mkdir(parents=True, exist_ok=True)
+    favicon_path = favicon_dir / favicon_name
+    favicon_path.write_bytes(contents)
+
+    # Update config.json with favicon path
+    cfg = _load_config()
+    cfg["site"]["favicon"] = f"/{favicon_name}"
+    tmp = str(CONFIG_PATH) + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, str(CONFIG_PATH))
+
+    return {"ok": True, "message": f"Favicon saved as {favicon_name}. Rebuild the site to apply.", "favicon": f"/{favicon_name}"}
 
 
 # ── API: Build ────────────────────────────────────────────────────

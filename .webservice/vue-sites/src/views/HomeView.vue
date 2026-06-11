@@ -3,6 +3,10 @@ import { useNotesStore } from '@/stores/notes'
 import NoteCard from '@/components/NoteCard.vue'
 
 const store = useNotesStore()
+
+// Injected by Vite at build time from .webservice/config.json
+const siteTitle = __SITE_TITLE__
+const githubUrl = __REPO_URL__
 </script>
 
 <template>
@@ -10,7 +14,7 @@ const store = useNotesStore()
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
-        <h1 class="hero-title">📓 My Notes</h1>
+        <h1 class="hero-title">{{ siteTitle }}</h1>
         <p class="hero-subtitle">
           A personal knowledge base covering machine learning, Python, mathematics, and developer
           tooling. Built with Obsidian and written in Markdown.
@@ -18,7 +22,7 @@ const store = useNotesStore()
         <div class="hero-actions">
           <RouterLink to="/notes" class="btn-primary">Browse all notes</RouterLink>
           <a
-            href="https://github.com/1617110693/notes"
+            :href="githubUrl"
             target="_blank"
             rel="noopener"
             class="btn-secondary"

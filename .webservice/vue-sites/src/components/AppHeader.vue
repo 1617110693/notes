@@ -7,6 +7,9 @@ import SearchBar from './SearchBar.vue'
 const store = useNotesStore()
 const route = useRoute()
 
+// Injected by Vite at build time from .webservice/config.json
+const siteTitle = __SITE_TITLE__
+
 const isHome = computed(() => route.name === 'home')
 const isNotes = computed(() => route.path.startsWith('/notes'))
 </script>
@@ -16,7 +19,7 @@ const isNotes = computed(() => route.path.startsWith('/notes'))
     <div class="header-inner">
       <RouterLink to="/" class="logo" @click="store.setSearchQuery('')">
         <span class="logo-icon">📓</span>
-        <span class="logo-text">My Notes</span>
+        <span class="logo-text">{{ siteTitle }}</span>
       </RouterLink>
 
       <nav class="nav-links">

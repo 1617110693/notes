@@ -240,7 +240,10 @@ td .meta{font-size:.72rem;color:var(--text-muted);margin-top:2px}
       <span class="icon">🔍</span> <span>Scan New</span>
     </a>
     <a data-page="build" onclick="showPage('build')">
-      <span class="icon">🔨</span> <span>Build Deploy</span>
+      <span class="icon">🔨</span> <span>Build & Deploy</span>
+    </a>
+    <a data-page="config" onclick="showPage('config')">
+      <span class="icon">⚙️</span> <span>Config</span>
     </a>
   </nav>
   <div class="sidebar-footer">v1.0 · local dashboard</div>
@@ -305,6 +308,7 @@ function showPage(name) {
     case 'categories': renderCategories(); break
     case 'scan': renderScan(); break
     case 'build': renderBuild(); break
+    case 'config': renderConfig(); break
   }
 }
 
@@ -1151,6 +1155,163 @@ window.addEventListener('beforeunload', () => {
   if (_buildEventSource) _buildEventSource.close()
   if (_deployEventSource) _deployEventSource.close()
 })
+
+// ══════════════════════════════════════════════════════════════════
+//  CONFIG PAGE
+// ══════════════════════════════════════════════════════════════════
+async function renderConfig() {
+  const main = document.getElementById('mainContent')
+  main.innerHTML = '<p style="text-align:center;padding:40px">Loading config...</p>'
+
+  let cfg
+  try { cfg = await API('/api/config') } catch(e) {
+    main.innerHTML = `<p style="text-align:center;padding:40px;color:var(--danger)">Failed to load config: ${esc(e.message)}</p>`
+    return
+  }
+
+  const favicon = cfg.site?.favicon || '/favicon.ico'
+
+  main.innerHTML = `
+    <div class="page-header">
+      <h2>⚙️ Configuration</h2>
+      <p>Edit <code>.webservice/config.json</code>. Changes apply immediately, except <strong>host/port</strong> which require a server restart.</p>
+    </div>
+
+    <div class="table-wrap" style="padding:24px">
+      <form id="configForm" onsubmit="saveConfig(event)">
+
+        <h3 style="margin:0 0 16px 0">🖥 Server Settings</h3>
+        <div class="form-row" style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Host</label>
+            <input type="text" id="cfgServerHost" value="${esc(cfg.server?.host||'127.0.0.1')}"
+              style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
+            <span style="font-size:.7rem;color:var(--text-muted)">127.0.0.1 = local only · 0.0.0.0 = all interfaces</span>
+          </div>
+          <div style="flex:0 0 140px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Port</label>
+            <input type="number" id="cfgServerPort" value="${cfg.server?.port||8765}" min="1" max="65535"
+              style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
+          </div>
+        </div>
+
+        <h3 style="margin:24px 0 16px 0">🌐 Site Settings</h3>
+        <div class="form-row" style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:250px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Site Title (browser tab & header)</label>
+            <input type="text" id="cfgSiteTitle" value="${esc(cfg.site?.title||'My Notes')}"
+              style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
+          </div>
+        </div>
+        <div class="form-row" style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Base Path (GitHub Pages)</label>
+            <input type="text" id="cfgSiteBase" value="${esc(cfg.site?.base||'/notes/')}"
+              style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
+            <span style="font-size:.7rem;color:var(--text-muted)">Must match your repo name, e.g. <code>/notes/</code></span>
+          </div>
+          <div style="flex:1;min-width:250px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Repository URL</label>
+            <input type="text" id="cfgSiteRepo" value="${esc(cfg.site?.repo_url||'')}"
+              style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
+          </div>
+        </div>
+
+        <h3 style="margin:24px 0 16px 0">🎨 Favicon (Tab Icon)</h3>
+        <div class="form-row" style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;align-items:start">
+          <div style="flex:0 0 80px">
+            <div style="width:64px;height:64px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden" id="faviconPreviewWrap">
+              <img src="${esc(favicon)}?t=${Date.now()}" id="faviconPreviewImg"
+                style="max-width:100%;max-height:100%;object-fit:contain"
+                onerror="this.parentElement.innerHTML='<span style=font-size:1.5rem>🖼</span>'">
+            </div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <label style="display:block;font-size:.8rem;font-weight:600;margin-bottom:4px">Upload new favicon</label>
+            <input type="file" id="faviconInput" accept=".png,.jpg,.jpeg,.ico,.svg,.webp"
+              style="display:block;margin-bottom:6px"
+              onchange="uploadFavicon()">
+            <span style="font-size:.7rem;color:var(--text-muted)">PNG, JPG, ICO, SVG, WebP · max 1 MB · applies after rebuild</span>
+            <span id="faviconMsg" style="font-size:.78rem;display:block;margin-top:4px"></span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:24px">
+          <button type="submit" class="btn btn-primary" id="configSaveBtn">💾 Save Config</button>
+          <span id="configMsg" style="font-size:.82rem"></span>
+        </div>
+      </form>
+    </div>
+  `
+}
+
+async function saveConfig(e) {
+  e.preventDefault()
+  const btn = document.getElementById('configSaveBtn')
+  const msg = document.getElementById('configMsg')
+  btn.disabled = true
+  btn.textContent = '⏳ Saving...'
+  msg.textContent = ''
+
+  const data = {
+    server: {
+      host: document.getElementById('cfgServerHost').value.trim() || '127.0.0.1',
+      port: parseInt(document.getElementById('cfgServerPort').value) || 8765,
+    },
+    site: {
+      title: document.getElementById('cfgSiteTitle').value.trim() || 'My Notes',
+      base: document.getElementById('cfgSiteBase').value.trim() || '/notes/',
+      repo_url: document.getElementById('cfgSiteRepo').value.trim() || '',
+    },
+  }
+
+  try {
+    const res = await API('/api/config', {method:'POST', body:JSON.stringify(data)})
+    msg.style.color = 'var(--success)'
+    msg.textContent = '✅ ' + res.message
+  } catch(e) {
+    msg.style.color = 'var(--danger)'
+    msg.textContent = '❌ ' + e.message
+  } finally {
+    btn.disabled = false
+    btn.textContent = '💾 Save Config'
+  }
+}
+
+async function uploadFavicon() {
+  const input = document.getElementById('faviconInput')
+  const msg = document.getElementById('faviconMsg')
+  const preview = document.getElementById('faviconPreviewImg')
+  const file = input.files[0]
+  if (!file) return
+
+  // Preview locally
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    if (preview) preview.src = e.target.result
+  }
+  reader.readAsDataURL(file)
+
+  msg.style.color = ''
+  msg.textContent = '⏳ Uploading...'
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const res = await fetch('/api/config/favicon', {method:'POST', body:formData})
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}))
+      throw new Error(err.detail || res.statusText)
+    }
+    const data = await res.json()
+    msg.style.color = 'var(--success)'
+    msg.textContent = '✅ ' + data.message
+  } catch(e) {
+    msg.style.color = 'var(--danger)'
+    msg.textContent = '❌ ' + e.message
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 //  UTILS

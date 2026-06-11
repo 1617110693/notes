@@ -5,6 +5,7 @@ description = "Local management dashboard for the notes blog"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.0",
+    "python-multipart>=0.0.32",
     "uvicorn[standard]>=0.30.0",
 ]
 

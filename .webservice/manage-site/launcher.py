@@ -67,6 +67,7 @@ class ServerLauncher:
         self.server_proc: subprocess.Popen | None = None
         self.log_lines: list[str] = []
         self.running = False
+        self.owns_server = False  # True if we started the server process
         self.host = "127.0.0.1"
         self.port = 8765
 
@@ -211,8 +212,30 @@ class ServerLauncher:
         print(text)
 
     # ── Server control ────────────────────────────────────────────
+    def _port_in_use(self):
+        """Check if the server port is already listening."""
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.5)
+        try:
+            s.connect((self.host, self.port))
+            s.close()
+            return True
+        except (socket.timeout, ConnectionRefusedError, OSError):
+            return False
+
     def start_server(self):
         if self.running:
+            return
+
+        # Check if server is already running on this port
+        if self._port_in_use():
+            self.log(f"── Server already running at http://{self.host}:{self.port} ──")
+            self.running = True
+            self.owns_server = False  # we didn't start it, can't stop it
+            self.set_status("running")
+            # Open browser after a short delay
+            threading.Thread(target=self._delayed_open_browser, daemon=True).start()
             return
 
         self.log("── Starting server... ──")
@@ -240,6 +263,7 @@ class ServerLauncher:
             )
 
             self.running = True
+            self.owns_server = True
             self.set_status("running")
             self.log(f"Server starting at http://{self.host}:{self.port}")
 
@@ -257,7 +281,18 @@ class ServerLauncher:
             self.set_status("stopped")
 
     def stop_server(self):
-        if not self.running or not self.server_proc:
+        if not self.running:
+            return
+
+        # If we didn't start the server, we can't stop it from here
+        if not self.owns_server:
+            self.log("── This server was not started by the launcher. ──")
+            self.log(f"    To stop it, close the terminal or run: taskkill /f /im python.exe")
+            self.running = False
+            self.set_status("stopped")
+            return
+
+        if not self.server_proc:
             return
 
         self.log("── Stopping server... ──")
@@ -276,6 +311,7 @@ class ServerLauncher:
 
         self.running = False
         self.server_proc = None
+        self.owns_server = False
         self.set_status("stopped")
         self.log("Server stopped.")
 
@@ -383,6 +419,7 @@ class ServerLauncher:
         self.log("── Server process exited unexpectedly ──")
         self.set_status("stopped")
         self.server_proc = None
+        self.owns_server = False
 
     def set_status(self, state: str):
         """Update the UI status indicator."""

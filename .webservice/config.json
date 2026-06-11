@@ -6,6 +6,7 @@
   "site": {
     "title": "My Notes — Personal Knowledge Base",
     "base": "/notes/",
-    "repo_url": "https://github.com/1617110693/notes"
+    "repo_url": "https://github.com/1617110693/notes",
+    "favicon": "/favicon.ico"
   }
 }
