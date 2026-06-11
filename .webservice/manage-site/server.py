@@ -383,7 +383,7 @@ def _load_config():
     """Load config.json, returning defaults if missing/invalid."""
     defaults = {
         "server": {"host": "127.0.0.1", "port": 8765},
-        "site": {"title": "My Notes", "base": "/notes/", "repo_url": ""},
+        "site": {"title": "My Notes", "description": "", "base": "/notes/", "repo_url": ""},
     }
     if CONFIG_PATH.exists():
         try:
@@ -436,6 +436,7 @@ def save_config(data: dict):
     data["site"]["title"] = data["site"].get("title", "My Notes")
     data["site"]["base"] = data["site"].get("base", "/notes/")
     data["site"]["repo_url"] = data["site"].get("repo_url", "")
+    data["site"]["description"] = data["site"].get("description", "")
     # Preserve favicon if present in incoming data, otherwise keep existing
     if "favicon" in data["site"]:
         data["site"]["favicon"] = data["site"]["favicon"]

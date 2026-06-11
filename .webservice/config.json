@@ -5,6 +5,7 @@
   },
   "site": {
     "title": "My Notes — Personal Knowledge Base",
+    "description": "A personal knowledge base covering machine learning, Python, mathematics, and developer tooling — written in Markdown, deployed with care.",
     "base": "/notes/",
     "repo_url": "https://github.com/1617110693/notes",
     "favicon": "/favicon.ico"

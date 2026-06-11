@@ -84,7 +84,16 @@ export function renderMarkdown(content) {
 export function extractHeadings(content) {
   const headings = []
   const lines = content.split('\n')
+  let inCodeBlock = false
   for (const line of lines) {
+    // Toggle code block on fenced ``` (but not indented code)
+    if (/^```/.test(line)) {
+      inCodeBlock = !inCodeBlock
+      continue
+    }
+    // Skip lines inside code blocks
+    if (inCodeBlock) continue
+
     const match = line.match(/^(#{1,4})\s+(.+)$/)
     if (match) {
       const text = match[2].replace(/<[^>]*>/g, '').trim()

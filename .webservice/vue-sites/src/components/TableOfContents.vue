@@ -1,14 +1,21 @@
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
   headings: {
     type: Array,
     required: true,
   },
+  collapsed: {
+    type: Boolean,
+    default: false,
+  },
 })
 
+const emit = defineEmits(['toggle'])
+
 const activeId = ref('')
+const tocNav = ref(null)
 
 function getHeadingClass(level) {
   return `toc-level-${level}`
@@ -22,7 +29,22 @@ function scrollToHeading(id) {
   }
 }
 
-// Track active heading on scroll
+// Sync TOC scroll position with the active heading
+async function syncTocScroll() {
+  await nextTick()
+  const nav = tocNav.value
+  if (!nav) return
+  const activeLink = nav.querySelector('li.active a')
+  if (activeLink) {
+    const navRect = nav.getBoundingClientRect()
+    const linkRect = activeLink.getBoundingClientRect()
+    // Only scroll if active link is outside the visible area
+    if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+      activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }
+}
+
 let observer = null
 
 onMounted(() => {
@@ -30,7 +52,10 @@ onMounted(() => {
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          activeId.value = entry.target.id
+          if (activeId.value !== entry.target.id) {
+            activeId.value = entry.target.id
+            syncTocScroll()
+          }
         }
       }
     },
@@ -47,7 +72,6 @@ onUnmounted(() => {
   if (observer) observer.disconnect()
 })
 
-// Reset active when headings change
 watch(
   () => props.headings,
   () => {
@@ -57,9 +81,20 @@ watch(
 </script>
 
 <template>
-  <nav v-if="headings.length > 0" class="table-of-contents">
-    <h4 class="toc-title">On this page</h4>
-    <ul class="toc-list">
+  <nav ref="tocNav" v-if="headings.length > 0" class="table-of-contents">
+    <div class="toc-header">
+      <h4 class="toc-title">On this page</h4>
+      <button
+        class="toc-toggle"
+        @click="emit('toggle')"
+        :title="props.collapsed ? 'Expand' : 'Collapse'"
+        :aria-label="props.collapsed ? 'Expand table of contents' : 'Collapse table of contents'"
+      >
+        <span v-if="props.collapsed">+</span>
+        <span v-else>×</span>
+      </button>
+    </div>
+    <ul v-show="!props.collapsed" class="toc-list">
       <li
         v-for="h in headings"
         :key="h.id"
@@ -75,25 +110,54 @@ watch(
 
 <style scoped>
 .table-of-contents {
-  position: sticky;
-  top: 80px;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
+}
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 0.5rem;
 }
 
 .toc-title {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 650;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
-  margin: 0 0 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.toc-toggle {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.toc-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+  background: var(--color-surface);
 }
 
 .toc-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-left: 1px solid var(--color-border);
 }
 
 .toc-list li {
@@ -103,11 +167,10 @@ watch(
 
 .toc-list a {
   display: block;
-  padding: 0.2rem 0 0.2rem 1rem;
+  padding: 0.25rem 0 0.25rem 0.85rem;
   text-decoration: none;
   color: var(--color-text-secondary);
   border-left: 2px solid transparent;
-  margin-left: -1px;
   transition: color 0.15s, border-color 0.15s;
 }
 
@@ -118,18 +181,18 @@ watch(
 .toc-list li.active a {
   color: var(--color-primary);
   border-left-color: var(--color-primary);
-  font-weight: 500;
+  font-weight: 550;
 }
 
 .toc-level-2 a {
-  padding-left: 1rem;
+  padding-left: 0.85rem;
 }
 
 .toc-level-3 a {
-  padding-left: 2rem;
+  padding-left: 1.65rem;
 }
 
 .toc-level-4 a {
-  padding-left: 3rem;
+  padding-left: 2.45rem;
 }
 </style>

@@ -48,53 +48,43 @@ watch(localQuery, (val) => {
 
 .search-icon {
   position: absolute;
-  left: 0.7rem;
-  font-size: 0.78rem;
+  left: 0.65rem;
+  font-size: 0.8rem;
   pointer-events: none;
-  opacity: 0.45;
+  opacity: 0.6;
 }
 
 .search-input {
   width: 180px;
-  padding: 0.45rem 2rem 0.45rem 2.1rem;
+  padding: 0.4rem 2rem 0.4rem 2rem;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 0.84rem;
-  font-family: inherit;
+  font-size: 0.85rem;
   outline: none;
-  transition: width 0.3s, border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  transition: width 0.3s, border-color 0.2s, background-color 0.2s;
 }
 
 .search-input:focus {
   width: 240px;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-bg);
-}
-
-.search-input::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.7;
 }
 
 .search-clear {
   position: absolute;
-  right: 0.45rem;
+  right: 0.4rem;
   background: none;
   border: none;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 0.75rem;
-  padding: 0.25rem;
+  padding: 0.2rem;
   line-height: 1;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
 }
 
 .search-clear:hover {
   color: var(--color-text);
-  background: var(--color-border);
 }
 
 @media (max-width: 640px) {

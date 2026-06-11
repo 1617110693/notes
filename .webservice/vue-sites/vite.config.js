@@ -11,6 +11,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const configPath = join(__dirname, '..', 'config.json')
 let siteTitle = '📓 My Notes'
+let siteDescription = 'A personal knowledge base.'
 let siteBase = '/notes/'
 let faviconHref = './favicon.ico'
 let repoUrl = 'https://github.com/1617110693/notes'
@@ -18,6 +19,7 @@ try {
   if (existsSync(configPath)) {
     const cfg = JSON.parse(readFileSync(configPath, 'utf-8'))
     if (cfg.site?.title) siteTitle = cfg.site.title
+    if (cfg.site?.description) siteDescription = cfg.site.description
     if (cfg.site?.base) siteBase = cfg.site.base
     if (cfg.site?.favicon) faviconHref = cfg.site.favicon
     if (cfg.site?.repo_url) repoUrl = cfg.site.repo_url
@@ -58,6 +60,7 @@ export default defineConfig({
 
   define: {
     __SITE_TITLE__: JSON.stringify(siteTitle),
+    __SITE_DESCRIPTION__: JSON.stringify(siteDescription),
     __SITE_BASE__: JSON.stringify(siteBase),
     __REPO_URL__: JSON.stringify(repoUrl),
   },

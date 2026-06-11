@@ -1,5 +1,9 @@
 # 📓 My Notes
 
+> [!TIP]
+>
+> Visit my pages here:https://1617110693.github.io/notes/
+
 > A personal knowledge base and learning log built with [Obsidian](https://obsidian.md).
 
 This repository collects my study notes across programming, machine learning, mathematics, and developer tooling. All notes are written in Markdown and organized as an Obsidian vault for easy browsing and cross-referencing.

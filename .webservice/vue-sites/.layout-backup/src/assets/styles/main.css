@@ -1,89 +1,50 @@
 /* ==============================
-   Design System — Refined Journal
+   Theme Variables
    ============================== */
-
-/* ── Typography ───────────────────────────────────── */
-/* Using system fonts for fast loading everywhere.
-   Serif: Charter, Georgia for article headings.
-   Sans: Inter, system-ui for body and UI. */
-
-/* ── Theme Variables ──────────────────────────────── */
 
 :root,
 [data-theme='light'] {
-  /* Surface */
-  --color-bg: #fafaf9;
-  --color-surface: #f0efed;
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
   --color-card-bg: #ffffff;
-  --color-header-bg: rgba(250, 250, 249, 0.82);
-
-  /* Text */
-  --color-text: #1c1917;
-  --color-text-secondary: #57534e;
-  --color-text-muted: #a8a29e;
-
-  /* Brand */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-bg: rgba(99, 102, 241, 0.08);
-  --color-primary-soft: rgba(99, 102, 241, 0.12);
-
-  /* Borders & shadows */
-  --color-border: #e7e5e4;
-  --color-border-light: #f0efed;
-  --color-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --color-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --color-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --color-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.04);
-
-  /* Code */
-  --color-code-bg: #f5f4f1;
+  --color-header-bg: rgba(255, 255, 255, 0.85);
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555555;
+  --color-text-muted: #8b8b8b;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-bg: rgba(37, 99, 235, 0.08);
+  --color-border: #e5e5e5;
+  --color-shadow: rgba(0, 0, 0, 0.06);
+  --color-code-bg: #f5f5f5;
   --color-inline-code: #d63384;
-  --color-blockquote-border: #6366f1;
-  --color-blockquote-bg: #f5f3ff;
-  --color-table-border: #e7e5e4;
-  --color-table-stripe: #fafaf9;
-  --color-selection: rgba(99, 102, 241, 0.15);
+  --color-blockquote-border: #2563eb;
+  --color-blockquote-bg: #f8fafc;
+  --color-table-border: #e5e5e5;
+  --color-table-stripe: #fafafa;
+  --color-selection: rgba(37, 99, 235, 0.15);
 }
 
 [data-theme='dark'] {
-  --color-bg: #0f0f13;
-  --color-surface: #1a1a23;
-  --color-card-bg: #18181f;
-  --color-header-bg: rgba(15, 15, 19, 0.82);
-
-  --color-text: #e8e4e1;
-  --color-text-secondary: #a8a29e;
-  --color-text-muted: #78716c;
-
-  --color-primary: #818cf8;
-  --color-primary-hover: #a5b4fc;
-  --color-primary-bg: rgba(129, 140, 248, 0.1);
-  --color-primary-soft: rgba(129, 140, 248, 0.15);
-
-  --color-border: #292830;
-  --color-border-light: #1f1e26;
-  --color-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --color-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --color-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --color-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3);
-
-  --color-code-bg: #1e1e28;
+  --color-bg: #17181c;
+  --color-surface: #1e1f24;
+  --color-card-bg: #1e1f24;
+  --color-header-bg: rgba(23, 24, 28, 0.85);
+  --color-text: #e4e4e7;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93bbfd;
+  --color-primary-bg: rgba(96, 165, 250, 0.1);
+  --color-border: #2a2b30;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-code-bg: #1e1f24;
   --color-inline-code: #f0abfc;
-  --color-blockquote-border: #818cf8;
-  --color-blockquote-bg: #1a1928;
-  --color-table-border: #292830;
-  --color-table-stripe: #14141a;
-  --color-selection: rgba(129, 140, 248, 0.2);
-}
-
-/* ── Category accent colors ───────────────────────── */
-:root {
-  --cat-ml: #f59e0b;
-  --cat-python: #3b82f6;
-  --cat-math: #10b981;
-  --cat-tools: #f43f5e;
-  --cat-default: #6366f1;
+  --color-blockquote-border: #60a5fa;
+  --color-blockquote-bg: #1e2028;
+  --color-table-border: #2a2b30;
+  --color-table-stripe: #1a1b1f;
+  --color-selection: rgba(96, 165, 250, 0.2);
 }
 
 /* ==============================
@@ -104,11 +65,10 @@ html {
 body {
   margin: 0;
   font-family:
-    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Microsoft YaHei',
-    sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 16px;
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--color-text);
   background: var(--color-bg);
   transition: background-color 0.3s, color 0.3s;
@@ -123,11 +83,10 @@ body {
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.15s;
 }
 
 a:hover {
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 img {
@@ -136,80 +95,24 @@ img {
 }
 
 /* ==============================
-   Reading Progress Bar
-   ============================== */
-
-.reading-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-primary), #a78bfa, #f472b6);
-  z-index: 200;
-  transition: width 0.1s linear;
-  border-radius: 0 2px 2px 0;
-}
-
-/* ==============================
-   Back to Top Button
-   ============================== */
-
-.back-to-top {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-card-bg);
-  color: var(--color-text-secondary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--color-shadow-md);
-  z-index: 150;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.3s, transform 0.3s, background 0.2s, color 0.2s;
-  pointer-events: none;
-}
-
-.back-to-top.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.back-to-top:hover {
-  background: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
-  box-shadow: var(--color-shadow-lg);
-}
-
-/* ==============================
    Markdown Content Styles
    ============================== */
 
 .markdown-renderer {
-  line-height: 1.8;
+  line-height: 1.75;
   color: var(--color-text);
   word-wrap: break-word;
   overflow-wrap: break-word;
-  font-size: 1.02rem;
 }
 
-/* Headings — serif for articles */
+/* Headings */
 .markdown-renderer h1,
 .markdown-renderer h2,
 .markdown-renderer h3,
 .markdown-renderer h4,
 .markdown-renderer h5,
 .markdown-renderer h6 {
-  margin: 2em 0 0.6em;
+  margin: 1.75em 0 0.6em;
   font-weight: 650;
   line-height: 1.35;
   color: var(--color-text);
@@ -223,34 +126,29 @@ img {
   margin-top: 0;
 }
 
-.markdown-renderer h1 { font-size: 1.8rem; letter-spacing: -0.02em; }
-.markdown-renderer h2 {
-  font-size: 1.45rem;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.35em;
-  letter-spacing: -0.01em;
-}
+.markdown-renderer h1 { font-size: 1.8rem; }
+.markdown-renderer h2 { font-size: 1.45rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em; }
 .markdown-renderer h3 { font-size: 1.2rem; }
 .markdown-renderer h4 { font-size: 1.05rem; }
 
 /* Paragraphs & lists */
 .markdown-renderer p {
-  margin: 0 0 1.1em;
+  margin: 0 0 1em;
 }
 
 .markdown-renderer ul,
 .markdown-renderer ol {
-  margin: 0 0 1.1em;
+  margin: 0 0 1em;
   padding-left: 1.75em;
 }
 
 .markdown-renderer li {
-  margin-bottom: 0.3em;
+  margin-bottom: 0.25em;
 }
 
 .markdown-renderer li > ul,
 .markdown-renderer li > ol {
-  margin-top: 0.3em;
+  margin-top: 0.25em;
   margin-bottom: 0;
 }
 
@@ -258,21 +156,19 @@ img {
 .markdown-renderer a {
   color: var(--color-primary);
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.15s;
 }
 
 .markdown-renderer a:hover {
-  border-bottom-color: var(--color-primary);
+  text-decoration: underline;
 }
 
 /* Code — inline */
 .markdown-renderer code {
-  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'SF Mono',
-    Consolas, 'Liberation Mono', Menlo, monospace;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'SF Mono', Consolas,
+    'Liberation Mono', Menlo, monospace;
   font-size: 0.88em;
-  padding: 0.15em 0.45em;
-  border-radius: 5px;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
   background: var(--color-code-bg);
   color: var(--color-inline-code);
   word-break: break-word;
@@ -280,13 +176,13 @@ img {
 
 /* Code — blocks */
 .markdown-renderer pre {
-  margin: 0 0 1.35em;
-  padding: 1.1rem 1.25rem;
-  border-radius: 10px;
+  margin: 0 0 1.25em;
+  padding: 1rem 1.15rem;
+  border-radius: 8px;
   background: var(--color-code-bg);
   border: 1px solid var(--color-border);
   overflow-x: auto;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 .markdown-renderer pre code {
@@ -300,11 +196,11 @@ img {
 
 /* Blockquotes */
 .markdown-renderer blockquote {
-  margin: 0 0 1.1em;
-  padding: 0.8rem 1.2rem;
+  margin: 0 0 1em;
+  padding: 0.6rem 1rem;
   border-left: 4px solid var(--color-blockquote-border);
   background: var(--color-blockquote-bg);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
   color: var(--color-text-secondary);
 }
 
@@ -315,17 +211,15 @@ img {
 /* Tables */
 .markdown-renderer table {
   width: 100%;
-  margin: 0 0 1.35em;
+  margin: 0 0 1.25em;
   border-collapse: collapse;
   border-spacing: 0;
   font-size: 0.9rem;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
 .markdown-renderer th,
 .markdown-renderer td {
-  padding: 0.65rem 0.9rem;
+  padding: 0.6rem 0.85rem;
   border: 1px solid var(--color-table-border);
   text-align: left;
 }
@@ -349,7 +243,7 @@ img {
 /* Images */
 .markdown-renderer img {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: 6px;
   margin: 0.5em 0;
 }
 
@@ -359,7 +253,7 @@ img {
 }
 
 .markdown-renderer .katex-display {
-  margin: 1.1em 0;
+  margin: 1em 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -368,10 +262,12 @@ img {
    Highlight.js overrides
    ============================== */
 
+/* Light mode: github theme colors */
 [data-theme='light'] .markdown-renderer .hljs {
   color: #24292e;
   background: var(--color-code-bg);
 }
+
 [data-theme='light'] .markdown-renderer .hljs-keyword,
 [data-theme='light'] .markdown-renderer .hljs-selector-tag,
 [data-theme='light'] .markdown-renderer .hljs-literal,
@@ -379,6 +275,7 @@ img {
 [data-theme='light'] .markdown-renderer .hljs-link {
   color: #d73a49;
 }
+
 [data-theme='light'] .markdown-renderer .hljs-string,
 [data-theme='light'] .markdown-renderer .hljs-title,
 [data-theme='light'] .markdown-renderer .hljs-name,
@@ -393,12 +290,14 @@ img {
 [data-theme='light'] .markdown-renderer .hljs-template-variable {
   color: #22863a;
 }
+
 [data-theme='light'] .markdown-renderer .hljs-comment,
 [data-theme='light'] .markdown-renderer .hljs-quote,
 [data-theme='light'] .markdown-renderer .hljs-deletion,
 [data-theme='light'] .markdown-renderer .hljs-meta {
   color: #6a737d;
 }
+
 [data-theme='light'] .markdown-renderer .hljs-number,
 [data-theme='light'] .markdown-renderer .hljs-regexp,
 [data-theme='light'] .markdown-renderer .hljs-built_in,
@@ -406,14 +305,17 @@ img {
 [data-theme='light'] .markdown-renderer .hljs-class .hljs-title {
   color: #005cc5;
 }
+
 [data-theme='light'] .markdown-renderer .hljs-params {
   color: #24292e;
 }
 
+/* Dark mode: github-dark inspired colors */
 [data-theme='dark'] .markdown-renderer .hljs {
   color: #c9d1d9;
   background: var(--color-code-bg);
 }
+
 [data-theme='dark'] .markdown-renderer .hljs-keyword,
 [data-theme='dark'] .markdown-renderer .hljs-selector-tag,
 [data-theme='dark'] .markdown-renderer .hljs-literal,
@@ -421,6 +323,7 @@ img {
 [data-theme='dark'] .markdown-renderer .hljs-link {
   color: #ff7b72;
 }
+
 [data-theme='dark'] .markdown-renderer .hljs-string,
 [data-theme='dark'] .markdown-renderer .hljs-title,
 [data-theme='dark'] .markdown-renderer .hljs-name,
@@ -435,12 +338,14 @@ img {
 [data-theme='dark'] .markdown-renderer .hljs-template-variable {
   color: #7ee787;
 }
+
 [data-theme='dark'] .markdown-renderer .hljs-comment,
 [data-theme='dark'] .markdown-renderer .hljs-quote,
 [data-theme='dark'] .markdown-renderer .hljs-deletion,
 [data-theme='dark'] .markdown-renderer .hljs-meta {
   color: #8b949e;
 }
+
 [data-theme='dark'] .markdown-renderer .hljs-number,
 [data-theme='dark'] .markdown-renderer .hljs-regexp,
 [data-theme='dark'] .markdown-renderer .hljs-built_in,
@@ -448,23 +353,9 @@ img {
 [data-theme='dark'] .markdown-renderer .hljs-class .hljs-title {
   color: #79c0ff;
 }
+
 [data-theme='dark'] .markdown-renderer .hljs-params {
   color: #c9d1d9;
-}
-
-/* ==============================
-   Scroll-triggered animation
-   ============================== */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* ==============================
