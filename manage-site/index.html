@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes Blog — Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* ── Reset & Variables ──────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5; --bg-card:#fff; --bg-sidebar:#1e1e2e; --bg-input:#f0f0f0;
+  --text:#333; --text-muted:#777; --text-sidebar:#cdd6f4;
+  --border:#e0e0e0; --primary:#6c5ce7; --primary-light:#a29bfe;
+  --success:#00b894; --danger:#e17055; --warning:#fdcb6e; --info:#74b9ff;
+  --radius:8px; --shadow:0 2px 8px rgba(0,0,0,.08);
+  --font-mono:'Cascadia Code','Fira Code','JetBrains Mono',Consolas,monospace;
+  --font-sans:system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar{
+  width:240px;background:var(--bg-sidebar);color:var(--text-sidebar);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;
+}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo h1{font-size:1.1rem;font-weight:700}
+.sidebar-logo span{font-size:.75rem;opacity:.6;display:block;margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 0}
+.sidebar-nav a{
+  display:flex;align-items:center;gap:10px;padding:10px 20px;
+  color:var(--text-sidebar);text-decoration:none;font-size:.9rem;
+  transition:background .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;
+}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:rgba(255,255,255,.08);color:#fff}
+.sidebar-nav a .icon{font-size:1.1rem;width:22px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:.7rem;opacity:.4}
+/* ── Main Content ───────────────────────────────────────────── */
+.main{margin-left:240px;flex:1;padding:24px 32px;max-width:1200px}
+.page{display:none}
+.page.active{display:block}
+/* ── Header ─────────────────────────────────────────────────── */
+.page-header{margin-bottom:24px}
+.page-header h2{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.page-header p{color:var(--text-muted);font-size:.85rem}
+/* ── Stats Cards ────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--bg-card);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;
+}
+.stat-icon{font-size:2rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--bg)}
+.stat-info .stat-value{font-size:1.4rem;font-weight:700}
+.stat-info .stat-label{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+/* ── Toolbar ────────────────────────────────────────────────── */
+.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.toolbar .search-box{flex:1;min-width:200px;max-width:360px}
+.toolbar input,.toolbar select{
+  padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg-input);font-size:.85rem;font-family:var(--font-sans);
+  outline:none;transition:border-color .15s;
+}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-light)}
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  border:none;border-radius:var(--radius);font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:var(--font-sans);
+  text-decoration:none;white-space:nowrap;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#5a4bd1;transform:translateY(-1px)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#00a381;transform:translateY(-1px)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#d63031}
+.btn-warning{background:var(--warning);color:#333}
+.btn-warning:hover{background:#f0b800}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:5px 10px;font-size:.78rem}
+.btn-xs{padding:3px 8px;font-size:.72rem}
+/* ── Table ──────────────────────────────────────────────────── */
+.table-wrap{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg)}
+th{text-align:left;padding:12px 16px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)}
+td{padding:10px 16px;font-size:.85rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+td .title{font-weight:600}
+td .slug{font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono)}
+td .meta{font-size:.72rem;color:var(--text-muted);margin-top:2px}
+.category-tag{
+  display:inline-block;padding:2px 10px;border-radius:12px;
+  font-size:.72rem;font-weight:600;background:var(--primary-light);color:#fff;
+}
+.actions-cell{display:flex;gap:6px;align-items:center}
+/* ── Modals ─────────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--bg-card);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  width:90vw;max-width:900px;max-height:85vh;display:flex;flex-direction:column;
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(-20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px;border-bottom:1px solid var(--border);
+}
+.modal-header h3{font-size:1.1rem;font-weight:700}
+.modal-close{
+  width:32px;height:32px;border:none;background:none;font-size:1.4rem;
+  cursor:pointer;border-radius:6px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{flex:1;overflow-y:auto;padding:24px}
+.modal-footer{
+  display:flex;gap:10px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border);
+}
+/* ── Form ───────────────────────────────────────────────────── */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.8rem;font-weight:700;margin-bottom:4px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);
+  font-family:var(--font-sans);font-size:.88rem;outline:none;
+  background:var(--bg-input);transition:border-color .15s;
+}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{
+  border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-light);
+}
+.form-group textarea{resize:vertical;min-height:100px;font-family:var(--font-mono);font-size:.82rem;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* ── Markdown Editor ────────────────────────────────────────── */
+.md-editor{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;min-height:400px}
+.md-editor-pane{flex:1;display:flex;flex-direction:column}
+.md-editor-pane:first-child{border-right:1px solid var(--border)}
+.md-pane-header{
+  padding:8px 14px;background:var(--bg);font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);
+  border-bottom:1px solid var(--border);
+}
+.md-editor-pane textarea{
+  flex:1;border:none;border-radius:0;resize:none;padding:14px;
+  font-family:var(--font-mono);font-size:.82rem;line-height:1.7;
+  background:var(--bg-card);outline:none;
+}
+.md-preview{
+  flex:1;padding:14px;overflow-y:auto;font-size:.85rem;line-height:1.7;
+}
+.md-preview h1,.md-preview h2,.md-preview h3{margin-top:1em;margin-bottom:.5em}
+.md-preview p{margin-bottom:.8em}
+.md-preview pre{background:#1e1e2e;color:#cdd6f4;padding:12px 16px;border-radius:6px;overflow-x:auto;font-size:.8rem}
+.md-preview code{font-family:var(--font-mono);font-size:.82em}
+.md-preview :not(pre)>code{background:var(--bg);padding:2px 6px;border-radius:4px}
+.md-preview table{border-collapse:collapse;width:100%}
+.md-preview td,.md-preview th{border:1px solid var(--border);padding:6px 10px;font-size:.82rem}
+.md-preview img{max-width:100%}
+.md-preview blockquote{border-left:3px solid var(--primary);padding-left:14px;color:var(--text-muted);margin:.8em 0}
+/* ── Build Console ──────────────────────────────────────────── */
+.build-console{
+  background:#1e1e2e;color:#cdd6f4;border-radius:var(--radius);padding:16px 20px;
+  font-family:var(--font-mono);font-size:.8rem;line-height:1.6;
+  max-height:500px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;
+  margin-top:16px;box-shadow:inset 0 2px 8px rgba(0,0,0,.3);
+}
+.build-console .dim{opacity:.5}
+.build-console .green{color:#00b894}
+.build-console .red{color:#e17055}
+.build-console .yellow{color:#fdcb6e}
+.build-console .cyan{color:#74b9ff}
+/* ── Toast ──────────────────────────────────────────────────── */
+.toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{
+  padding:12px 20px;border-radius:var(--radius);color:#fff;font-size:.85rem;font-weight:600;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);animation:slideIn .25s ease;
+  max-width:380px;
+}
+.toast-success{background:var(--success)}
+.toast-error{background:var(--danger)}
+.toast-info{background:var(--info)}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+/* ── Empty State ────────────────────────────────────────────── */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-state .empty-icon{font-size:3rem;margin-bottom:12px}
+.empty-state h3{font-size:1.1rem;margin-bottom:6px}
+.empty-state p{color:var(--text-muted);font-size:.85rem}
+/* ── Badge ──────────────────────────────────────────────────── */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
+.badge-new{background:var(--success);color:#fff}
+.badge-missing{background:var(--danger);color:#fff}
+/* ── Confirm Dialog ─────────────────────────────────────────── */
+.confirm-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;
+  display:none;align-items:center;justify-content:center;
+}
+.confirm-overlay.show{display:flex}
+.confirm-box{
+  background:var(--bg-card);border-radius:12px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  max-width:420px;text-align:center;
+}
+.confirm-box h3{margin-bottom:8px}
+.confirm-box p{color:var(--text-muted);font-size:.85rem;margin-bottom:20px}
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{width:60px}
+  .sidebar-logo h1,.sidebar-logo span,.sidebar-nav a span:not(.icon){display:none}
+  .sidebar-nav a{justify-content:center;padding:12px}
+  .main{margin-left:60px;padding:16px}
+  .form-row{grid-template-columns:1fr}
+  .md-editor{flex-direction:column}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>📓 Manager</h1>
+    <span>Notes Blog Admin</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a data-page="dashboard" class="active" onclick="showPage('dashboard')">
+      <span class="icon">📊</span> <span>Dashboard</span>
+    </a>
+    <a data-page="notes" onclick="showPage('notes')">
+      <span class="icon">📝</span> <span>All Notes</span>
+    </a>
+    <a data-page="categories" onclick="showPage('categories')">
+      <span class="icon">📂</span> <span>Categories</span>
+    </a>
+    <a data-page="scan" onclick="showPage('scan')">
+      <span class="icon">🔍</span> <span>Scan New</span>
+    </a>
+    <a data-page="build" onclick="showPage('build')">
+      <span class="icon">🔨</span> <span>Build Deploy</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">v1.0 · local dashboard</div>
+</aside>
+
+<!-- ── Main Content ─────────────────────────────────────────── -->
+<div class="main" id="mainContent"></div>
+
+<!-- ── Toast Container ──────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── Confirm Dialog ───────────────────────────────────────── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── API helper ───────────────────────────────────────────────────
+const API = (path, opts={}) => fetch(path, {headers:{'Content-Type':'application/json'},...opts})
+  .then(async r => { if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.detail||r.statusText) } return r.json() })
+
+// ── Toast ────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const c=document.getElementById('toastContainer')
+  const t=document.createElement('div')
+  t.className=`toast toast-${type}`
+  t.textContent=msg
+  c.appendChild(t)
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300)},3000)
+}
+
+// ── Confirm ──────────────────────────────────────────────────────
+let _confirmResolve = null
+function showConfirm(title, msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve
+    document.getElementById('confirmTitle').textContent = title
+    document.getElementById('confirmMsg').textContent = msg
+    document.getElementById('confirmOverlay').classList.add('show')
+    document.getElementById('confirmYes').onclick = ()=>{ resolve(true); closeConfirm() }
+  })
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('show')
+  if(_confirmResolve) { _confirmResolve(false); _confirmResolve = null }
+}
+
+// ── Page Navigation ──────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'))
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active')
+  switch(name) {
+    case 'dashboard': renderDashboard(); break
+    case 'notes': renderNotes(); break
+    case 'categories': renderCategories(); break
+    case 'scan': renderScan(); break
+    case 'build': renderBuild(); break
+  }
+}
+
+// ── Escape key closes modals ─────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'))
+    closeConfirm()
+  }
+})
+
+// ══════════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════════════
+async function renderDashboard() {
+  const main = document.getElementById('mainContent')
+  main.innerHTML = '<p style="text-align:center;padding:40px">Loading...</p>'
+
+  try {
+    const [stats, cats, notes] = await Promise.all([
+      API('/api/stats'), API('/api/categories'), API('/api/notes')
+    ])
+
+    const catBreakdown = cats.map(c => {
+      const count = notes.filter(n=>n.category===c.id).length
+      return {...c, count}
+    })
+
+    main.innerHTML = `
+      <div class="page-header">
+        <h2>📊 Dashboard</h2>
+        <p>Overview of your notes blog</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-info">
+            <div class="stat-value">${stats.total_notes}</div>
+            <div class="stat-label">Registered Notes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📁</div>
+          <div class="stat-info">
+            <div class="stat-value">${stats.categories}</div>
+            <div class="stat-label">Categories</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-info">
+            <div class="stat-value">${stats.md_files_on_disk}</div>
+            <div class="stat-label">MD Files on Disk</div>
+          </div>
+        </div>
+        <div class="stat-card" style="${stats.unregistered ? 'border-left: 3px solid var(--warning);' : ''}">
+          <div class="stat-icon">${stats.unregistered ? '⚠️' : '✅'}</div>
+          <div class="stat-info">
+            <div class="stat-value">${stats.unregistered}</div>
+            <div class="stat-label">Unregistered Files</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="table-wrap">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:.9rem">📂 Category Breakdown</div>
+          <table>
+            <thead><tr><th>Category</th><th>Notes</th></tr></thead>
+            <tbody>
+              ${catBreakdown.map(c=>`<tr><td>${c.icon} ${c.name}</td><td style="font-weight:700">${c.count}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:.9rem">⚡ Quick Actions</div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary" onclick="showPage('notes')">📝 Manage Notes</button>
+            <button class="btn btn-warning" onclick="showPage('scan')">🔍 Scan for New Notes</button>
+            <button class="btn btn-success" onclick="showPage('build')">🔨 Build Site</button>
+            <a href="http://127.0.0.1:8765/api/site-config" target="_blank" class="btn btn-outline" style="justify-content:center">📋 View Config</a>
+          </div>
+        </div>
+      </div>
+      ${stats.unregistered > 0 ? `
+        <div style="margin-top:16px;padding:14px 18px;background:#fff3cd;border-radius:var(--radius);display:flex;align-items:center;gap:12px">
+          ⚠️ <strong>${stats.unregistered}</strong> unregistered .md file(s) found.
+          <button class="btn btn-warning btn-sm" onclick="showPage('scan')">Review & Register</button>
+        </div>
+      ` : ''}
+    `
+  } catch(e) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Failed to load</h3><p>${e.message}</p></div>`
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  NOTES PAGE
+// ══════════════════════════════════════════════════════════════════
+let _allNotes = []
+let _categories = []
+
+async function renderNotes() {
+  const main = document.getElementById('mainContent')
+  main.innerHTML = '<p style="text-align:center;padding:40px">Loading...</p>'
+
+  try {
+    const [notes, cats] = await Promise.all([API('/api/notes'), API('/api/categories')])
+    _allNotes = notes
+    _categories = cats
+
+    main.innerHTML = `
+      <div class="page-header">
+        <h2>📝 All Notes</h2>
+        <p>${notes.length} notes registered — edit metadata, content, or manage entries</p>
+      </div>
+      <div class="toolbar">
+        <input type="text" class="search-box" placeholder="🔍 Search notes..." oninput="filterNotesTable()" id="notesSearch">
+        <select onchange="filterNotesTable()" id="notesCategoryFilter">
+          <option value="">All Categories</option>
+          ${cats.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" onclick="openNoteEditor()">+ New Note</button>
+      </div>
+      <div class="table-wrap" id="notesTable"></div>
+    `
+    filterNotesTable()
+  } catch(e) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Failed to load</h3><p>${e.message}</p></div>`
+  }
+}
+
+function filterNotesTable() {
+  const q = (document.getElementById('notesSearch')?.value || '').toLowerCase()
+  const cat = document.getElementById('notesCategoryFilter')?.value || ''
+
+  let filtered = _allNotes
+  if (q) filtered = filtered.filter(n =>
+    n.title.toLowerCase().includes(q) || n.slug.toLowerCase().includes(q) || n.description.toLowerCase().includes(q))
+  if (cat) filtered = filtered.filter(n => n.category === cat)
+
+  const tbody = filtered.length === 0
+    ? `<tr><td colspan="6"><div class="empty-state"><p>No notes match your filter</p></div></td></tr>`
+    : filtered.map(n => `
+      <tr>
+        <td>
+          <div class="title">${esc(n.title)}</div>
+          <div class="slug">/${n.slug}</div>
+          <div class="meta">${n.date || ''} · ${formatSize(n._size)}${n._exists ? '' : ' <span class="badge badge-missing">MISSING</span>'}</div>
+        </td>
+        <td><span class="category-tag">${getCatIcon(n.category)} ${n.category||''}</span></td>
+        <td style="max-width:240px;font-size:.82rem;color:var(--text-muted)">${esc(n.description||'').substring(0,100)}</td>
+        <td><div class="actions-cell">
+          <button class="btn btn-outline btn-xs" onclick="openNoteEditor('${n.slug}')">✏️ Meta</button>
+          <button class="btn btn-outline btn-xs" onclick="openContentEditor('${n.slug}')">📄 Content</button>
+          <button class="btn btn-outline btn-xs" style="color:var(--danger)" onclick="deleteNoteConfirm('${n.slug}','${esc(n.title)}')">🗑</button>
+        </div></td>
+      </tr>
+    `).join('')
+
+  const tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Title / Slug</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th style="width:200px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>${tbody}</tbody>
+    </table>
+  `
+  const wrap = document.getElementById('notesTable')
+  if (wrap) wrap.innerHTML = tableHTML
+}
+
+function getCatIcon(id) {
+  const cat = _categories.find(c=>c.id===id)
+  return cat ? cat.icon : '📝'
+}
+
+// ── Metadata Editor Modal ─────────────────────────────────────
+async function openNoteEditor(slug=null) {
+  const isNew = !slug
+  let note = {slug:'',filename:'',title:'',category:_categories[0]?.id||'',description:'',date:new Date().toISOString().slice(0,10)}
+
+  if (!isNew) {
+    try { note = await API(`/api/notes/${slug}`) } catch(e) { return toast(e.message,'error') }
+  }
+
+  const modal = document.createElement('div')
+  modal.className = 'modal-overlay show'
+  modal.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h3>${isNew ? '➕ New Note' : '✏️ Edit: ' + esc(note.title)}</h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="metaTitle" value="${esc(note.title)}" placeholder="Note title">
+          </div>
+          <div class="form-group">
+            <label>Slug (URL path)</label>
+            <input type="text" id="metaSlug" value="${esc(note.slug)}" placeholder="my-note-slug" ${!isNew?'readonly style="opacity:.6"':''}>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Filename</label>
+            <input type="text" id="metaFilename" value="${esc(note.filename)}" placeholder="MyNote.md or PythonPackages/mynote.md">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="metaCategory">${_categories.map(c=>`<option value="${c.id}" ${note.category===c.id?'selected':''}>${c.icon} ${c.name}</option>`).join('')}</select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="metaDate" value="${note.date||''}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="metaDesc" rows="2" placeholder="Brief description for the blog card...">${esc(note.description||'')}</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+        <button class="btn btn-primary" id="saveMetaBtn">💾 Save</button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(modal)
+
+  document.getElementById('saveMetaBtn').onclick = async () => {
+    const metadata = {
+      title: document.getElementById('metaTitle').value.trim(),
+      slug: document.getElementById('metaSlug').value.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''),
+      filename: document.getElementById('metaFilename').value.trim(),
+      category: document.getElementById('metaCategory').value,
+      description: document.getElementById('metaDesc').value.trim(),
+      date: document.getElementById('metaDate').value,
+    }
+    if (!metadata.title || !metadata.slug || !metadata.filename || !metadata.category) {
+      return toast('Please fill in title, slug, filename, and category','error')
+    }
+    try {
+      if (isNew) {
+        await API('/api/notes', {method:'POST', body:JSON.stringify(metadata)})
+        toast('Note created!','success')
+      } else {
+        await API(`/api/notes/${slug}`, {method:'PUT', body:JSON.stringify({metadata})})
+        toast('Metadata updated!','success')
+      }
+      modal.remove()
+      renderNotes()
+    } catch(e) { toast(e.message,'error') }
+  }
+}
+
+// ── Content Editor Modal ──────────────────────────────────────
+let _mdPreviewTimeout = null
+async function openContentEditor(slug) {
+  let note
+  try { note = await API(`/api/notes/${slug}`) } catch(e) { return toast(e.message,'error') }
+
+  const modal = document.createElement('div')
+  modal.className = 'modal-overlay show'
+  modal.style.zIndex = '210'
+  modal.innerHTML = `
+    <div class="modal" style="max-width:1100px">
+      <div class="modal-header">
+        <h3>📄 ${esc(note.title)} <span style="font-weight:400;font-size:.8rem;color:var(--text-muted)">— ${esc(note.filename)}</span></h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <div class="md-editor" style="min-height:60vh">
+          <div class="md-editor-pane">
+            <div class="md-pane-header">✍️ Markdown Source</div>
+            <textarea id="mdSource" style="min-height:55vh">${esc(note.content||'')}</textarea>
+          </div>
+          <div class="md-editor-pane">
+            <div class="md-pane-header">👁 Preview</div>
+            <div class="md-preview" id="mdPreview"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span style="flex:1;font-size:.78rem;color:var(--text-muted)">${formatSize(note._size)} · ${note._mtime ? 'Last modified: '+note._mtime : ''}</span>
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+        <button class="btn btn-primary" id="saveContentBtn">💾 Save Content</button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(modal)
+
+  const src = document.getElementById('mdSource')
+  const preview = document.getElementById('mdPreview')
+
+  function updatePreview() {
+    try { preview.innerHTML = marked.parse(src.value) } catch(e) { preview.innerHTML = `<p style="color:red">Preview error: ${e.message}</p>` }
+  }
+  src.addEventListener('input', ()=>{
+    clearTimeout(_mdPreviewTimeout)
+    _mdPreviewTimeout = setTimeout(updatePreview, 300)
+  })
+  updatePreview()
+
+  document.getElementById('saveContentBtn').onclick = async () => {
+    try {
+      await API(`/api/notes/${slug}`, {method:'PUT', body:JSON.stringify({content: src.value})})
+      toast('Content saved!','success')
+    } catch(e) { toast(e.message,'error') }
+  }
+}
+
+// ── Delete Note ────────────────────────────────────────────────
+async function deleteNoteConfirm(slug, title) {
+  const ok = await showConfirm('Delete Note?', `Remove "${title}" from the site? The .md file on disk will NOT be deleted.`)
+  if (!ok) return
+  try {
+    await API(`/api/notes/${slug}?delete_file=false`, {method:'DELETE'})
+    toast(`"${title}" removed from metadata`,'success')
+    renderNotes()
+  } catch(e) { toast(e.message,'error') }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CATEGORIES PAGE
+// ══════════════════════════════════════════════════════════════════
+async function renderCategories() {
+  const main = document.getElementById('mainContent')
+  main.innerHTML = '<p style="text-align:center;padding:40px">Loading...</p>'
+
+  try {
+    const [cats, notes] = await Promise.all([API('/api/categories'), API('/api/notes')])
+    _categories = cats
+
+    const rows = cats.length === 0
+      ? `<tr><td colspan="4"><div class="empty-state"><p>No categories defined yet</p></div></td></tr>`
+      : cats.map(c => {
+          const count = notes.filter(n => n.category === c.id).length
+          return `
+          <tr>
+            <td><span style="font-size:1.5rem">${esc(c.icon||'📝')}</span></td>
+            <td><code style="font-size:.82rem">${esc(c.id)}</code></td>
+            <td><strong>${esc(c.name)}</strong></td>
+            <td>${count} notes</td>
+            <td><div class="actions-cell">
+              <button class="btn btn-outline btn-xs" onclick="editCategory('${esc(c.id)}')">✏️ Edit</button>
+              <button class="btn btn-outline btn-xs" style="color:var(--danger)" onclick="deleteCategoryConfirm('${esc(c.id)}','${esc(c.name)}',${count})">🗑</button>
+            </div></td>
+          </tr>`
+        }).join('')
+
+    main.innerHTML = `
+      <div class="page-header">
+        <h2>📂 Categories</h2>
+        <p>Manage categories used by notes. Changes sync with vue-sites metadata.</p>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="addCategory()">+ New Category</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:50px">Icon</th><th style="width:160px">ID</th><th>Name</th><th style="width:80px">Notes</th><th style="width:140px">Actions</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `
+  } catch(e) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Failed to load categories</h3><p>${e.message}</p></div>`
+  }
+}
+
+function makeIconPicker(selected) {
+  const icons = ['🤖','🐍','📐','🛠','📝','📊','📚','💡','🔧','🎯','⚡','🌟','📖','🔬','🧮','💻','🎨','🗂','📌','🔗']
+  return icons.map(i => `<span style="font-size:1.4rem;cursor:pointer;padding:4px;border-radius:4px;${i===selected?'background:var(--primary-light);':''}" onclick="document.getElementById('catIconInput').value='${i}';this.parentElement.querySelectorAll('span').forEach(s=>s.style.background='');this.style.background='var(--primary-light)'">${i}</span>`).join('')
+}
+
+function addCategory() {
+  const modal = document.createElement('div')
+  modal.className = 'modal-overlay show'
+  modal.innerHTML = `
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h3>➕ New Category</h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Category ID (used in URLs)</label>
+          <input type="text" id="catIdInput" placeholder="my-category">
+        </div>
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="catNameInput" placeholder="My Category">
+        </div>
+        <div class="form-group">
+          <label>Icon</label>
+          <input type="text" id="catIconInput" value="📝" style="width:60px;text-align:center;font-size:1.2rem">
+          <div style="margin-top:6px;display:flex;gap:2px;flex-wrap:wrap" id="iconPicker">${makeIconPicker('📝')}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+        <button class="btn btn-primary" id="saveCatBtn">💾 Create</button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(modal)
+  document.getElementById('saveCatBtn').onclick = async () => {
+    const id = document.getElementById('catIdInput').value.trim()
+    const name = document.getElementById('catNameInput').value.trim()
+    const icon = document.getElementById('catIconInput').value.trim()
+    if (!id || !name) return toast('ID and Name are required','error')
+    try {
+      await API('/api/categories', {method:'POST', body:JSON.stringify({id,name,icon})})
+      toast('Category created!','success')
+      modal.remove()
+      renderCategories()
+    } catch(e) { toast(e.message,'error') }
+  }
+}
+
+function editCategory(id) {
+  const cat = _categories.find(c => c.id === id)
+  if (!cat) return toast('Category not found','error')
+  const modal = document.createElement('div')
+  modal.className = 'modal-overlay show'
+  modal.innerHTML = `
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h3>✏️ Edit Category</h3>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Category ID</label>
+          <input type="text" value="${esc(cat.id)}" disabled style="opacity:.6">
+          <span style="font-size:.72rem;color:var(--text-muted)">ID cannot be changed (it would break existing note references)</span>
+        </div>
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="catNameInput" value="${esc(cat.name)}">
+        </div>
+        <div class="form-group">
+          <label>Icon</label>
+          <input type="text" id="catIconInput" value="${esc(cat.icon||'📝')}" style="width:60px;text-align:center;font-size:1.2rem">
+          <div style="margin-top:6px;display:flex;gap:2px;flex-wrap:wrap" id="iconPicker">${makeIconPicker(cat.icon||'📝')}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+        <button class="btn btn-primary" id="saveCatBtn">💾 Save</button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(modal)
+  document.getElementById('saveCatBtn').onclick = async () => {
+    const name = document.getElementById('catNameInput').value.trim()
+    const icon = document.getElementById('catIconInput').value.trim()
+    if (!name) return toast('Name is required','error')
+    try {
+      await API(`/api/categories/${id}`, {method:'PUT', body:JSON.stringify({name,icon})})
+      toast('Category updated!','success')
+      modal.remove()
+      renderCategories()
+    } catch(e) { toast(e.message,'error') }
+  }
+}
+
+async function deleteCategoryConfirm(id, name, noteCount) {
+  if (noteCount > 0) {
+    // Need to pick a reassignment target
+    const otherCats = _categories.filter(c => c.id !== id)
+    if (otherCats.length === 0) {
+      return toast('Cannot delete the last category while notes still exist','error')
+    }
+    const target = await new Promise(resolve => {
+      const modal = document.createElement('div')
+      modal.className = 'modal-overlay show'
+      modal.innerHTML = `
+        <div class="modal" style="max-width:460px">
+          <div class="modal-header">
+            <h3>⚠️ Reassign Notes First</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove();resolve(null)">×</button>
+          </div>
+          <div class="modal-body">
+            <p><strong>${noteCount} notes</strong> belong to "${esc(name)}". Choose where to move them:</p>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+              ${otherCats.map(c => `
+                <button class="btn btn-outline" style="justify-content:flex-start;padding:10px 14px" onclick="this.closest('.modal-overlay').remove();resolve('${c.id}')">
+                  ${esc(c.icon||'📝')} ${esc(c.name)} <code style="margin-left:auto;font-size:.75rem">${c.id}</code>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `
+      document.body.appendChild(modal)
+    })
+    if (!target) return
+    try {
+      const res = await API(`/api/categories/${id}?reassign_to=${encodeURIComponent(target)}`, {method:'DELETE'})
+      toast(`Category deleted. ${res.reassigned} notes moved.`,'success')
+      renderCategories()
+    } catch(e) { toast(e.message,'error') }
+  } else {
+    const ok = await showConfirm('Delete Category?', `Delete "${name}"? This will not delete any notes.`)
+    if (!ok) return
+    try {
+      await API(`/api/categories/${id}`, {method:'DELETE'})
+      toast(`"${name}" deleted`,'success')
+      renderCategories()
+    } catch(e) { toast(e.message,'error') }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SCAN PAGE
+// ══════════════════════════════════════════════════════════════════
+async function renderScan() {
+  const main = document.getElementById('mainContent')
+  main.innerHTML = '<p style="text-align:center;padding:40px">Scanning...</p>'
+
+  try {
+    const data = await API('/api/scan')
+    const unreg = data.unregistered
+
+    const rows = unreg.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">✅</div><h3>All .md files are registered!</h3><p>${data.total_on_disk} files on disk, ${data.registered_count} in metadata</p></div>`
+      : unreg.map(f => {
+          const defaultSlug = f.name.replace(/\.md$/i,'').replace(/[^a-zA-Z0-9一-鿿-]/g,'-').replace(/-+/g,'-').toLowerCase()
+          const defaultCat = _categories.length>0 ? _categories[0].id : ''
+          return `
+          <tr>
+            <td>
+              <div class="title">${esc(f.name)} <span class="badge badge-new">NEW</span></div>
+              <div class="slug">${esc(f.filename)}</div>
+              <div class="meta">${formatSize(f.size)} · ${f.mtime}</div>
+            </td>
+            <td>
+              <input type="text" class="reg-slug" value="${defaultSlug}" style="width:140px;padding:5px 8px;font-size:.8rem" placeholder="slug">
+            </td>
+            <td>
+              <select class="reg-cat" style="padding:5px 8px;font-size:.8rem">
+                ${_categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-success btn-xs reg-btn" data-file="${esc(f.filename)}" data-name="${esc(f.name)}">➕ Register</button>
+              <button class="btn btn-outline btn-xs" onclick="previewFile('${esc(f.filename)}')">👁 Preview</button>
+            </td>
+          </tr>`
+        }).join('')
+
+    main.innerHTML = `
+      <div class="page-header">
+        <h2>🔍 Scan for New Notes</h2>
+        <p>${data.total_on_disk} .md files on disk · ${data.registered_count} registered · <strong>${data.count} unregistered</strong></p>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="renderScan()">🔄 Re-scan</button>
+      </div>
+      ${unreg.length > 0 ? `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Slug</th><th>Category</th><th style="width:180px">Actions</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>` : `<div class="table-wrap">${rows}</div>`}
+    `
+
+    // Bind register buttons
+    document.querySelectorAll('.reg-btn').forEach(btn => {
+      btn.onclick = async function() {
+        const row = this.closest('tr')
+        const file = this.dataset.file
+        const name = this.dataset.name
+        const slug = row.querySelector('.reg-slug').value.trim()
+        const cat = row.querySelector('.reg-cat').value
+        if (!slug) return toast('Please enter a slug','error')
+
+        try {
+          // Load file content
+          const raw = await API(`/api/raw-file?path=${encodeURIComponent(file)}`)
+          await API('/api/notes', {
+            method:'POST',
+            body: JSON.stringify({
+              slug, filename: file, title: name.replace(/\.md$/,''),
+              category: cat, description: '',
+              content: raw.content
+            })
+          })
+          toast(`"${name}" registered!`,'success')
+          renderScan()
+        } catch(e) { toast(e.message,'error') }
+      }
+    })
+  } catch(e) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Scan failed</h3><p>${e.message}</p></div>`
+  }
+}
+
+async function previewFile(filename) {
+  try {
+    const raw = await API(`/api/raw-file?path=${encodeURIComponent(filename)}`)
+    const modal = document.createElement('div')
+    modal.className = 'modal-overlay show'
+    modal.style.zIndex = '210'
+    modal.innerHTML = `
+      <div class="modal" style="max-width:1100px">
+        <div class="modal-header">
+          <h3>👁 Preview: ${esc(filename)}</h3>
+          <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+        </div>
+        <div class="modal-body" style="padding:0">
+          <div class="md-editor" style="min-height:60vh">
+            <div class="md-editor-pane">
+              <div class="md-pane-header">📄 Markdown Source</div>
+              <textarea id="pvSource" style="min-height:55vh" readonly>${esc(raw.content)}</textarea>
+            </div>
+            <div class="md-editor-pane">
+              <div class="md-pane-header">👁 Preview</div>
+              <div class="md-preview" id="pvPreview"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <span style="flex:1;font-size:.78rem;color:var(--text-muted)">${formatSize(raw.size)}</span>
+          <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Close</button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(modal)
+
+    // Render preview
+    const preview = modal.querySelector('#pvPreview')
+    try { preview.innerHTML = marked.parse(raw.content) } catch(e) { preview.innerHTML = `<p style="color:red">Preview error: ${e.message}</p>` }
+  } catch(e) { toast(e.message,'error') }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  BUILD PAGE
+// ══════════════════════════════════════════════════════════════════
+let _buildEventSource = null
+
+async function renderBuild() {
+  const main = document.getElementById('mainContent')
+
+  let status, deployStatus
+  try { status = await API('/api/build/status') } catch(e) { status = {running:false} }
+  try { deployStatus = await API('/api/deploy/status') } catch(e) { deployStatus = {running:false} }
+
+  main.innerHTML = `
+    <div class="page-header">
+      <h2>🔨 Build & Deploy</h2>
+      <p>Build the Vue site → output to <code>docs/</code> directory for GitHub Pages</p>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn btn-success" id="buildBtn" ${status.running?'disabled':''} onclick="startBuild()">
+        ${status.running ? '⏳ Building...' : '🚀 Build Site'}
+      </button>
+      <button class="btn btn-warning" id="deployBtn" ${deployStatus.running?'disabled':''} onclick="startDeploy()">
+        ${deployStatus.running ? '⏳ Deploying...' : '🚀 Deploy to Git'}
+      </button>
+      <span style="font-size:.82rem;color:var(--text-muted)">
+        Build outputs to <code>docs/</code> · Deploy runs <code>git add/commit/push</code> in notes root
+      </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <strong style="font-size:.8rem">Console:</strong>
+      ${status.running ? '<span style="color:var(--warning);font-size:.8rem">● Building...</span>' : ''}
+      ${deployStatus.running ? '<span style="color:var(--warning);font-size:.8rem">● Deploying...</span>' : ''}
+      ${!status.running && !deployStatus.running ? '<span style="color:var(--text-muted);font-size:.8rem">○ Idle</span>' : ''}
+      <button class="btn btn-outline btn-xs" onclick="clearConsole()">Clear</button>
+    </div>
+    <div class="build-console" id="buildConsole">
+      <span class="dim">── Ready. Click a button to start ──</span>
+    </div>
+  `
+
+  // Reconnect SSE if something is running
+  if (status.running) connectBuildSSE()
+  if (deployStatus.running) connectDeploySSE()
+}
+
+function clearConsole() {
+  const el = document.getElementById('buildConsole')
+  if (el) el.innerHTML = '<span class="dim">── Console cleared ──</span>'
+}
+
+function appendBuildLine(text) {
+  const el = document.getElementById('buildConsole')
+  if (!el) return
+  // Colorize
+  let cls = ''
+  if (text.includes('✓') || text.includes('success') || text.includes('SUCCESS')) cls = 'green'
+  else if (text.includes('✗') || text.includes('FAILED') || text.includes('Error') || text.includes('error')) cls = 'red'
+  else if (text.includes('⚠') || text.includes('warning') || text.includes('WARN')) cls = 'yellow'
+  else if (text.includes('──')) cls = 'cyan'
+
+  const div = document.createElement('div')
+  div.className = cls
+  div.textContent = text
+  el.appendChild(div)
+  el.scrollTop = el.scrollHeight
+}
+
+async function startBuild() {
+  const btn = document.getElementById('buildBtn')
+  const deployBtn = document.getElementById('deployBtn')
+  if (!btn) return
+  btn.disabled = true
+  btn.textContent = '⏳ Building...'
+  if (deployBtn) deployBtn.disabled = true
+  clearConsole()
+  appendBuildLine('── Starting build... ──')
+
+  try {
+    await API('/api/build', {method:'POST'})
+    connectBuildSSE()
+  } catch(e) {
+    appendBuildLine(`Error: ${e.message}`)
+    btn.disabled = false
+    btn.textContent = '🚀 Build Site'
+  }
+}
+
+function connectBuildSSE() {
+  if (_buildEventSource) {
+    _buildEventSource.close()
+    _buildEventSource = null
+  }
+
+  const lastLen = document.querySelectorAll('#buildConsole div').length
+  const es = new EventSource(`/api/build/stream?since=${lastLen}`)
+  _buildEventSource = es
+
+  es.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      appendBuildLine(data.text)
+    } catch(_) {}
+  }
+
+  es.addEventListener('done', (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      const ok = data.success
+      appendBuildLine(ok ? '\n✅ Build deployed to docs/ successfully!' : `\n❌ Build failed with exit code ${data.code}`)
+      const btn = document.getElementById('buildBtn')
+      if (btn) { btn.disabled = false; btn.textContent = '🚀 Build Site' }
+      const dbtn = document.getElementById('deployBtn')
+      if (dbtn) { dbtn.disabled = false; dbtn.textContent = '🚀 Deploy to Git' }
+    } catch(_) {}
+    es.close()
+    _buildEventSource = null
+  })
+
+  es.onerror = () => {
+    es.close()
+    _buildEventSource = null
+    const btn = document.getElementById('buildBtn')
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Build Site' }
+    const dbtn = document.getElementById('deployBtn')
+    if (dbtn) { dbtn.disabled = false; dbtn.textContent = '🚀 Deploy to Git' }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DEPLOY — git add/commit/push
+// ══════════════════════════════════════════════════════════════════
+let _deployEventSource = null
+
+async function startDeploy() {
+  const btn = document.getElementById('deployBtn')
+  const buildBtn = document.getElementById('buildBtn')
+  if (!btn) return
+  btn.disabled = true
+  btn.textContent = '⏳ Deploying...'
+  if (buildBtn) buildBtn.disabled = true
+  clearConsole()
+  appendBuildLine('── Starting deploy... ──')
+
+  try {
+    await API('/api/deploy', {method:'POST'})
+    connectDeploySSE()
+  } catch(e) {
+    appendBuildLine(`Error: ${e.message}`)
+    btn.disabled = false
+    btn.textContent = '🚀 Deploy to Git'
+  }
+}
+
+function connectDeploySSE() {
+  if (_deployEventSource) {
+    _deployEventSource.close()
+    _deployEventSource = null
+  }
+
+  const lastLen = document.querySelectorAll('#buildConsole div').length
+  const es = new EventSource(`/api/deploy/stream?since=${lastLen}`)
+  _deployEventSource = es
+
+  es.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      appendBuildLine(data.text)
+    } catch(_) {}
+  }
+
+  es.addEventListener('done', (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      const ok = data.success
+      appendBuildLine(ok ? '\n✅ Deploy complete!' : `\n❌ Deploy failed: ${data.error || 'unknown'}`)
+      const btn = document.getElementById('deployBtn')
+      if (btn) { btn.disabled = false; btn.textContent = '🚀 Deploy to Git' }
+      const bbtn = document.getElementById('buildBtn')
+      if (bbtn) { bbtn.disabled = false; bbtn.textContent = '🚀 Build Site' }
+    } catch(_) {}
+    es.close()
+    _deployEventSource = null
+  })
+
+  es.onerror = () => {
+    es.close()
+    _deployEventSource = null
+    const btn = document.getElementById('deployBtn')
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Deploy to Git' }
+    const bbtn = document.getElementById('buildBtn')
+    if (bbtn) { bbtn.disabled = false; bbtn.textContent = '🚀 Build Site' }
+  }
+}
+
+// beforeunload cleanup
+window.addEventListener('beforeunload', () => {
+  if (_buildEventSource) _buildEventSource.close()
+  if (_deployEventSource) _deployEventSource.close()
+})
+
+// ══════════════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════════════
+function esc(s) {
+  if (!s) return ''
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+function formatSize(bytes) {
+  if (!bytes || bytes===0) return '0 B'
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB'
+  return (bytes/(1024*1024)).toFixed(1) + ' MB'
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════════
+(async function init() {
+  // Preload categories for the scan page
+  try { _categories = await API('/api/categories') } catch(_) {}
+  renderDashboard()
+})()
+</script>
+
+</body>
+</html>

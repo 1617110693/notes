@@ -1,0 +1,14 @@
+[project]
+name = "manage-site"
+version = "1.0.0"
+description = "Local management dashboard for the notes blog"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.0.0",
+]

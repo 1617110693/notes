@@ -1,0 +1,186 @@
+{
+  "categories": [
+    {
+      "id": "machine-learning",
+      "name": "Machine Learning & Deep Learning",
+      "icon": "🤖"
+    },
+    {
+      "id": "python",
+      "name": "Python & Scientific Computing",
+      "icon": "🐍"
+    },
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "icon": "📐"
+    },
+    {
+      "id": "tools",
+      "name": "Developer Tooling",
+      "icon": "🛠"
+    }
+  ],
+  "notes": [
+    {
+      "slug": "machine-learning",
+      "filename": "MachineLearning.md",
+      "title": "Machine Learning — Comprehensive Notes",
+      "category": "machine-learning",
+      "description": "Comprehensive ML notes covering paradigms, workflow, algorithms, evaluation metrics, and practical tips.",
+      "date": "2025-05-25"
+    },
+    {
+      "slug": "cross-entropy-loss",
+      "filename": "交叉熵损失理解.md",
+      "title": "Understanding Cross-Entropy Loss",
+      "category": "machine-learning",
+      "description": "Deep dive into cross-entropy loss with intuition, mathematical derivations, and practical applications.",
+      "date": "2025-05-25"
+    },
+    {
+      "slug": "learning-rate",
+      "filename": "学习率理解.md",
+      "title": "Understanding Learning Rate",
+      "category": "machine-learning",
+      "description": "Understanding learning rate in gradient descent — convergence vs. divergence, scheduling strategies.",
+      "date": "2025-05-25"
+    },
+    {
+      "slug": "python-notes",
+      "filename": "PythonNotes.md",
+      "title": "Python Notes — Gotchas & Tooling",
+      "category": "python",
+      "description": "Python gotchas (in-place vs. new-copy), package management (venv / uv / conda), and Jupyter shortcuts.",
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "python-cases",
+      "filename": "PythonCases.md",
+      "title": "Python Practical Cases",
+      "category": "python",
+      "description": "Practical Python mini-projects and use cases, including web scraping and automation scripts.",
+      "date": "2025-05-09"
+    },
+    {
+      "slug": "numpy-pandas-matplotlib-sklearn",
+      "filename": "numpy&pandas&matplotlib&scikit-learn.md",
+      "title": "NumPy, Pandas, Matplotlib & Scikit-learn",
+      "category": "python",
+      "description": "Getting-started guide for the four core Python data science libraries with examples.",
+      "date": "2025-05-23"
+    },
+    {
+      "slug": "numpy",
+      "filename": "PythonPackages/numpy.md",
+      "title": "NumPy — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive NumPy reference covering arrays, indexing, broadcasting, linear algebra, and more.",
+      "date": "2025-05-23"
+    },
+    {
+      "slug": "pandas",
+      "filename": "PythonPackages/pandas.md",
+      "title": "Pandas — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive Pandas reference covering Series, DataFrame, grouping, merging, and time series.",
+      "date": "2025-05-22"
+    },
+    {
+      "slug": "matplotlib",
+      "filename": "PythonPackages/matplotlib.md",
+      "title": "Matplotlib — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive Matplotlib reference for creating publication-quality visualizations in Python.",
+      "date": "2025-05-13"
+    },
+    {
+      "slug": "seaborn",
+      "filename": "PythonPackages/seaborn.md",
+      "title": "Seaborn — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive Seaborn reference for statistical data visualization built on top of Matplotlib.",
+      "date": "2025-05-13"
+    },
+    {
+      "slug": "scipy",
+      "filename": "PythonPackages/scipy.md",
+      "title": "SciPy — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive SciPy reference covering optimization, integration, interpolation, and signal processing.",
+      "date": "2025-05-13"
+    },
+    {
+      "slug": "scikit-learn",
+      "filename": "PythonPackages/scikit-learn.md",
+      "title": "Scikit-learn — In-Depth Reference",
+      "category": "python",
+      "description": "Comprehensive Scikit-learn reference for machine learning pipelines, models, and evaluation.",
+      "date": "2025-05-24"
+    },
+    {
+      "slug": "math-models",
+      "filename": "MathModels.md",
+      "title": "Mathematical Modeling — Study Plan",
+      "category": "mathematics",
+      "description": "4-week study plan for mathematical modeling competitions with topic breakdown and resources.",
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "function-series",
+      "filename": "函数项级数.md",
+      "title": "Function Series & Uniform Convergence",
+      "category": "mathematics",
+      "description": "Mathematical analysis notes on function series, uniform convergence, and related theorems.",
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "latex-draft",
+      "filename": "Draft.md",
+      "title": "LaTeX Math Drafts & Tests",
+      "category": "mathematics",
+      "description": "Collection of LaTeX math snippets, test renders, and formula references for mathematical writing.",
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "vim-reference",
+      "filename": "vim.md",
+      "title": "Vim — Command Reference",
+      "category": "tools",
+      "description": "Quick reference for Vim commands, motions, macros, and productivity tips.",
+      "date": "2025-05-24"
+    },
+    {
+      "slug": "powershell",
+      "filename": "Powershell.md",
+      "title": "PowerShell — Commands & Tips",
+      "category": "tools",
+      "description": "Essential PowerShell commands for Windows system administration, scripting, and automation.",
+      "date": "2025-05-31"
+    },
+    {
+      "slug": "regex",
+      "filename": "RegularExpression.md",
+      "title": "Regular Expression — Syntax Reference",
+      "category": "tools",
+      "description": "Comprehensive regular expression syntax summary with common patterns and examples.",
+      "date": "2025-05-23"
+    },
+    {
+      "slug": "markdown-notes",
+      "filename": "MarkdownNotes.md",
+      "title": "Markdown — Syntax Reference",
+      "category": "tools",
+      "description": "Complete Markdown syntax guide covering headings, lists, tables, code blocks, and extended features.",
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "latex-notes",
+      "filename": "LaTeXNotes.md",
+      "title": "LaTeX — Package Notes",
+      "category": "tools",
+      "description": "LaTeX package reference including ctex, tabularray, amsmath, and common formatting patterns.",
+      "date": "2025-05-09"
+    }
+  ]
+}
