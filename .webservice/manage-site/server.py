@@ -23,9 +23,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # ── Paths ─────────────────────────────────────────────────────────
-MANAGE_DIR = Path(__file__).resolve().parent          # .../notes/manage-site
-NOTES_ROOT = MANAGE_DIR.parent                        # .../notes
-VUE_DIR = NOTES_ROOT / "vue-sites"
+MANAGE_DIR = Path(__file__).resolve().parent          # .../notes/.webservice/manage-site
+NOTES_ROOT = MANAGE_DIR.parent.parent                  # .../notes
+VUE_DIR = NOTES_ROOT / ".webservice" / "vue-sites"
 DOCS_DIR = NOTES_ROOT / "docs"
 METADATA_FILE = VUE_DIR / "src" / "data" / "notes-metadata.json"
 CONTENT_DIR = VUE_DIR / "src" / "content" / "notes"
@@ -670,6 +670,18 @@ def main():
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
         sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
+    # Load config (fall back to defaults if file missing or invalid)
+    host = "127.0.0.1"
+    port = 8765
+    config_path = MANAGE_DIR.parent / "config.json"
+    if config_path.exists():
+        try:
+            cfg = json.loads(config_path.read_text(encoding="utf-8"))
+            host = cfg.get("server", {}).get("host", host)
+            port = cfg.get("server", {}).get("port", port)
+        except Exception:
+            pass  # fall back to defaults
+
     print("=" * 56)
     print("  Notes Blog -- Management Dashboard")
     print("=" * 56)
@@ -677,9 +689,8 @@ def main():
     print(f"  Metadata   : {METADATA_FILE}")
     print(f"  Vue project: {VUE_DIR}")
     print(f"  Build out  : {DOCS_DIR}")
+    print(f"  Config     : {config_path}")
     print("-" * 56)
-    host = "127.0.0.1"
-    port = 8765
     print(f"  Open http://{host}:{port} in your browser")
     print("=" * 56)
     uvicorn.run(app, host=host, port=port, log_level="info")

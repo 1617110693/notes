@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = join(__dirname, '..')
-const notesRoot = join(projectRoot, '..')
+const notesRoot = join(projectRoot, '..', '..')
 
 // Ensure target directories exist
 const contentDir = join(projectRoot, 'src', 'content', 'notes')

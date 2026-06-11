@@ -3,7 +3,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const docsDir = join(__dirname, '..', '..', 'docs')
+const docsDir = join(__dirname, '..', '..', '..', 'docs')
 const indexPath = join(docsDir, 'index.html')
 const notFoundPath = join(docsDir, '404.html')
 

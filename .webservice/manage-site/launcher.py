@@ -299,7 +299,7 @@ class ServerLauncher:
 
     def deploy(self):
         """Run git add/commit/push in the notes root directory."""
-        notes_root = MANAGE_DIR.parent  # d:\notes
+        notes_root = MANAGE_DIR.parent.parent  # d:\notes
         self.log("── Deploy: git add . ──")
         self.deploy_btn.configure(state="disabled", text="⏳ Deploying...")
         threading.Thread(target=self._deploy_thread, args=(notes_root,), daemon=True).start()

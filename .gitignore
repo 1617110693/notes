@@ -20,6 +20,3 @@ dist/
 
 # Built executable
 NotesBlogManager.exe
-
-# Auto-push script (local only)
-git-auto-push.bat
