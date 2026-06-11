@@ -715,6 +715,7 @@ async def run_deploy():
             commands = [
                 (["git", "add", "."], "git add ."),
                 (["git", "commit", "-m", "update"], "git commit -m update"),
+                (["git", "pull", "--rebase"], "git pull --rebase"),
                 (["git", "push"], "git push"),
             ]
             for cmd_args, label in commands:
@@ -765,6 +766,15 @@ def serve_frontend():
     if FRONTEND_FILE.exists():
         return FileResponse(str(FRONTEND_FILE))
     return JSONResponse({"error": "index.html not found in manage-site/"}, 404)
+
+
+@app.get("/favicon.png")
+def serve_favicon():
+    """Serve the management page favicon."""
+    favicon_path = MANAGE_DIR / "favicon.png"
+    if favicon_path.exists():
+        return FileResponse(str(favicon_path), media_type="image/png")
+    return Response(status_code=404)
 
 
 # ── Main ──────────────────────────────────────────────────────────

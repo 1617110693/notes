@@ -10,7 +10,7 @@ echo.
 
 :: Ensure dependencies are installed
 echo [1/3] Checking dependencies...
-uv sync --dev
+uv sync --group dev
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] uv sync failed
     pause
@@ -21,18 +21,20 @@ if %ERRORLEVEL% neq 0 (
 echo [2/3] Cleaning previous build...
 if exist "dist\NotesBlogManager.exe" del "dist\NotesBlogManager.exe"
 if exist "build" rmdir /s /q "build"
+if exist "NotesBlogManager.spec" del "NotesBlogManager.spec"
 
-:: Run PyInstaller
+:: Run PyInstaller (use venv python directly to avoid uv trampoline issue)
 echo [3/3] Running PyInstaller...
 echo.
-uv run pyinstaller ^
+".venv\Scripts\python.exe" -m PyInstaller ^
     --noconsole ^
     --onefile ^
+    --icon "%~dp0icon.ico" ^
     --name "NotesBlogManager" ^
     --add-data "server.py;." ^
+    --add-data "icon.ico;." ^
     --distpath "./dist" ^
     --workpath "./build" ^
-    --specpath "./build" ^
     launcher.py
 
 if %ERRORLEVEL% neq 0 (

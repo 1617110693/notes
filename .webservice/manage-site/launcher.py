@@ -79,6 +79,18 @@ class ServerLauncher:
         root.minsize(480, 360)
         root.configure(bg="#1e1e2e")
 
+        # Set window icon
+        try:
+            # When frozen, icon.ico is extracted to sys._MEIPASS via --add-data
+            if IS_FROZEN:
+                icon_path = Path(sys._MEIPASS) / "icon.ico"
+            else:
+                icon_path = MANAGE_DIR / "icon.ico"
+            if icon_path.exists():
+                root.iconbitmap(str(icon_path))
+        except Exception:
+            pass
+
         # ── Title bar ─────────────────────────────────────────────
         title_frame = tk.Frame(root, bg="#181825", height=48)
         title_frame.pack(fill="x")
@@ -345,6 +357,7 @@ class ServerLauncher:
         commands = [
             (["git", "add", "."], "git add ."),
             (["git", "commit", "-m", "update"], "git commit -m update"),
+            (["git", "pull", "--rebase"], "git pull --rebase"),
             (["git", "push"], "git push"),
         ]
         for cmd_args, label in commands:
