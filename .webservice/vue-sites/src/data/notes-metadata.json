@@ -19,6 +19,11 @@
       "id": "tools",
       "name": "Developer Tooling",
       "icon": "🛠"
+    },
+    {
+      "id": "draft",
+      "name": "Draft",
+      "icon": "📝"
     }
   ],
   "notes": [
@@ -138,7 +143,7 @@
       "slug": "latex-draft",
       "filename": "Draft.md",
       "title": "LaTeX Math Drafts & Tests",
-      "category": "mathematics",
+      "category": "draft",
       "description": "Collection of LaTeX math snippets, test renders, and formula references for mathematical writing.",
       "date": "2025-06-03"
     },
@@ -181,6 +186,14 @@
       "category": "tools",
       "description": "LaTeX package reference including ctex, tabularray, amsmath, and common formatting patterns.",
       "date": "2025-05-09"
+    },
+    {
+      "slug": "draft2",
+      "filename": "draft2.md",
+      "title": "draft2",
+      "category": "draft",
+      "description": "",
+      "date": "2026-06-11"
     }
   ]
 }
