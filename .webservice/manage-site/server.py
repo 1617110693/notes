@@ -477,12 +477,15 @@ async def run_build():
             else:
                 vite_cmd = [str(VUE_DIR / "node_modules" / ".bin" / "vite"), "build"]
 
-            proc = subprocess.Popen(
-                vite_cmd, cwd=vue_dir,
+            popen_kw = dict(
+                cwd=vue_dir,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 stdin=subprocess.DEVNULL,
                 text=True, encoding="utf-8", errors="replace",
             )
+            if sys.platform == "win32":
+                popen_kw["creationflags"] = subprocess.CREATE_NO_WINDOW
+            proc = subprocess.Popen(vite_cmd, **popen_kw)
             for line in proc.stdout:
                 line = line.rstrip()
                 if line:

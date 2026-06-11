@@ -33,7 +33,7 @@
       "title": "Machine Learning — Comprehensive Notes",
       "category": "machine-learning",
       "description": "Comprehensive ML notes covering paradigms, workflow, algorithms, evaluation metrics, and practical tips.",
-      "date": "2025-05-25"
+      "date": "2026-06-11"
     },
     {
       "slug": "cross-entropy-loss",
@@ -41,7 +41,7 @@
       "title": "Understanding Cross-Entropy Loss",
       "category": "machine-learning",
       "description": "Deep dive into cross-entropy loss with intuition, mathematical derivations, and practical applications.",
-      "date": "2025-05-25"
+      "date": "2026-06-11"
     },
     {
       "slug": "learning-rate",
@@ -49,7 +49,7 @@
       "title": "Understanding Learning Rate",
       "category": "machine-learning",
       "description": "Understanding learning rate in gradient descent — convergence vs. divergence, scheduling strategies.",
-      "date": "2025-05-25"
+      "date": "2026-06-11"
     },
     {
       "slug": "python-notes",
@@ -57,7 +57,7 @@
       "title": "Python Notes — Gotchas & Tooling",
       "category": "python",
       "description": "Python gotchas (in-place vs. new-copy), package management (venv / uv / conda), and Jupyter shortcuts.",
-      "date": "2025-06-03"
+      "date": "2026-06-11"
     },
     {
       "slug": "python-cases",
@@ -65,7 +65,7 @@
       "title": "Python Practical Cases",
       "category": "python",
       "description": "Practical Python mini-projects and use cases, including web scraping and automation scripts.",
-      "date": "2025-05-09"
+      "date": "2026-06-11"
     },
     {
       "slug": "numpy-pandas-matplotlib-sklearn",
@@ -73,7 +73,7 @@
       "title": "NumPy, Pandas, Matplotlib & Scikit-learn",
       "category": "python",
       "description": "Getting-started guide for the four core Python data science libraries with examples.",
-      "date": "2025-05-23"
+      "date": "2026-06-11"
     },
     {
       "slug": "numpy",
@@ -81,7 +81,7 @@
       "title": "NumPy — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive NumPy reference covering arrays, indexing, broadcasting, linear algebra, and more.",
-      "date": "2025-05-23"
+      "date": "2026-06-11"
     },
     {
       "slug": "pandas",
@@ -89,7 +89,7 @@
       "title": "Pandas — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive Pandas reference covering Series, DataFrame, grouping, merging, and time series.",
-      "date": "2025-05-22"
+      "date": "2026-06-11"
     },
     {
       "slug": "matplotlib",
@@ -97,7 +97,7 @@
       "title": "Matplotlib — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive Matplotlib reference for creating publication-quality visualizations in Python.",
-      "date": "2025-05-13"
+      "date": "2026-06-11"
     },
     {
       "slug": "seaborn",
@@ -105,7 +105,7 @@
       "title": "Seaborn — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive Seaborn reference for statistical data visualization built on top of Matplotlib.",
-      "date": "2025-05-13"
+      "date": "2026-06-11"
     },
     {
       "slug": "scipy",
@@ -113,7 +113,7 @@
       "title": "SciPy — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive SciPy reference covering optimization, integration, interpolation, and signal processing.",
-      "date": "2025-05-13"
+      "date": "2026-06-11"
     },
     {
       "slug": "scikit-learn",
@@ -121,7 +121,7 @@
       "title": "Scikit-learn — In-Depth Reference",
       "category": "python",
       "description": "Comprehensive Scikit-learn reference for machine learning pipelines, models, and evaluation.",
-      "date": "2025-05-24"
+      "date": "2026-06-11"
     },
     {
       "slug": "math-models",
@@ -129,7 +129,7 @@
       "title": "Mathematical Modeling — Study Plan",
       "category": "mathematics",
       "description": "4-week study plan for mathematical modeling competitions with topic breakdown and resources.",
-      "date": "2025-06-03"
+      "date": "2026-06-11"
     },
     {
       "slug": "function-series",
@@ -137,7 +137,7 @@
       "title": "Function Series & Uniform Convergence",
       "category": "mathematics",
       "description": "Mathematical analysis notes on function series, uniform convergence, and related theorems.",
-      "date": "2025-06-03"
+      "date": "2026-06-11"
     },
     {
       "slug": "latex-draft",
@@ -145,7 +145,7 @@
       "title": "LaTeX Math Drafts & Tests",
       "category": "draft",
       "description": "Collection of LaTeX math snippets, test renders, and formula references for mathematical writing.",
-      "date": "2025-06-03"
+      "date": "2026-06-11"
     },
     {
       "slug": "vim-reference",
@@ -153,7 +153,7 @@
       "title": "Vim — Command Reference",
       "category": "tools",
       "description": "Quick reference for Vim commands, motions, macros, and productivity tips.",
-      "date": "2025-05-24"
+      "date": "2026-06-11"
     },
     {
       "slug": "powershell",
@@ -161,7 +161,7 @@
       "title": "PowerShell — Commands & Tips",
       "category": "tools",
       "description": "Essential PowerShell commands for Windows system administration, scripting, and automation.",
-      "date": "2025-05-31"
+      "date": "2026-06-11"
     },
     {
       "slug": "regex",
@@ -169,7 +169,7 @@
       "title": "Regular Expression — Syntax Reference",
       "category": "tools",
       "description": "Comprehensive regular expression syntax summary with common patterns and examples.",
-      "date": "2025-05-23"
+      "date": "2026-06-11"
     },
     {
       "slug": "markdown-notes",
@@ -177,7 +177,7 @@
       "title": "Markdown — Syntax Reference",
       "category": "tools",
       "description": "Complete Markdown syntax guide covering headings, lists, tables, code blocks, and extended features.",
-      "date": "2025-06-03"
+      "date": "2026-06-11"
     },
     {
       "slug": "latex-notes",
@@ -185,7 +185,7 @@
       "title": "LaTeX — Package Notes",
       "category": "tools",
       "description": "LaTeX package reference including ctex, tabularray, amsmath, and common formatting patterns.",
-      "date": "2025-05-09"
+      "date": "2026-06-11"
     },
     {
       "slug": "draft2",

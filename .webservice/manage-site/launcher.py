@@ -443,12 +443,14 @@ def ensure_venv():
         # Can't show messagebox yet — no root window
         print("Virtual environment not found. Running 'uv sync'...")
     try:
-        result = subprocess.run(
-            ["uv", "sync"],
+        run_kw = dict(
             cwd=str(MANAGE_DIR),
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             timeout=120,
         )
+        if sys.platform == "win32":
+            run_kw["creationflags"] = subprocess.CREATE_NO_WINDOW
+        result = subprocess.run(["uv", "sync"], **run_kw)
         if result.returncode != 0:
             return False, result.stderr or result.stdout
         return VENV_PYTHON.exists(), result.stderr or result.stdout
