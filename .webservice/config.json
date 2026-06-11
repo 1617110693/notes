@@ -1,0 +1,11 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+  "site": {
+    "title": "My Notes — Personal Knowledge Base",
+    "base": "/notes/",
+    "repo_url": "https://github.com/1617110693/notes"
+  }
+}
